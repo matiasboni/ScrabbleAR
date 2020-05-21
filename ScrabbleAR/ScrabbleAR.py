@@ -4,3 +4,4 @@ for i in range(6):
 	print("15")
 	print("20")
 	print("40")
+print ('hola mundo')
