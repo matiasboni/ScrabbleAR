@@ -58,7 +58,7 @@ def pos_palabra3(nivel):
 
 def pos_palabra2(nivel):
     if nivel=='NF':
-        return [(3,3),(3,11),(4,4),(4,10),(5,5),(5,9),(6,6),(6,8),(8,6),(8,8),(9,5),(9,9),(10,5),(10,10),(11,3),(11,11)]
+        return [(3,3),(3,11),(4,4),(4,10),(5,5),(5,9),(6,6),(6,8),(8,6),(8,8),(9,5),(9,9),(10,4),(10,10),(11,3),(11,11)]
     elif nivel=='ND':
         return [(5,9),(6,8),(8,6),(9,5)]
     else:
@@ -66,7 +66,7 @@ def pos_palabra2(nivel):
 
 def pos_letra3(nivel):
     if nivel =='NF':
-        return [(1,7),(3,7),(7,1),(7,3),(7,11),(7,13),(11,7),(11,13)]
+        return [(1,7),(3,7),(7,1),(7,3),(7,11),(7,13),(11,7),(13,7)]
     elif nivel == 'ND':
         return [(4,10),(7,7),(10,4)]
     else:
@@ -90,21 +90,23 @@ def asignar_color_facil(coordenadas):
     descuen2=descuento2(nivel)
     descuen3=descuento3(nivel)
     if coordenadas in letra2:
-        return ("blue","blue")
+        return ("sky blue","sky blue")
     elif coordenadas in letra3:
         return ("blue","blue")
     elif coordenadas in palabra2:
         return ("green","green")
     elif coordenadas in palabra3:
-        return ("red", "red")
+        return ("green2", "green2")
     elif coordenadas in descuen1:
-        return ("red","red")
+        return ("orange","orange")
     elif coordenadas in descuen2:
         return ("red","red")
     elif coordenadas in descuen3:
-        return ("red","red")
+        return ("DarkRed","DarkRed")
+    elif coordenadas==(7,7):
+        return ("yellow","yellow")
     else:
-        return  ("black","black")
+        return  ("azure","azure")
 
 def asignar_color_dificil(coordenadas):
     nivel='ND'
@@ -196,7 +198,7 @@ def main():
 
 	letras_usuario=[           [sg.Button(vector_jugador[a],key=a, size=(5,2)) for a in range(7)]]
 
-	letras_con_otro_button=[   [sg.Column(letras_usuario), sg.Button('Cabiar', size=(5,2))]]
+	letras_con_otro_button=[   [sg.Column(letras_usuario), sg.Button('Cambiar', size=(5,2))]]
 
 	columna2=[  [sg.Text(' '* 19), sg.Column(letras_complu)],
 				[sg.Column(tablero)],
