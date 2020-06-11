@@ -5,6 +5,7 @@ import platform
 import ctypes
 import subprocess
 import pattern.es
+from pattern.es import parse
 
 def retornar_sistema_operativo():
     sistema=platform.system()
@@ -154,23 +155,23 @@ def asignar_color_facil(coordenadas):
     descuen2=descuento2(nivel)
     descuen3=descuento3(nivel)
     if coordenadas in letra2:
-        return ("sky blue","sky blue")
+        return ("black","sky blue")
     elif coordenadas in letra3:
-        return ("blue","blue")
+        return ("black","blue")
     elif coordenadas in palabra2:
-        return ("green","green")
+        return ("black","green")
     elif coordenadas in palabra3:
-        return ("green2", "green2")
+        return ("black", "green2")
     elif coordenadas in descuen1:
-        return ("OrangeRed","OrangeRed")
+        return ("black","OrangeRed")
     elif coordenadas in descuen2:
-        return ("red","red")
+        return ("black","red")
     elif coordenadas in descuen3:
-        return ("DarkRed","DarkRed")
+        return ("black","DarkRed")
     elif coordenadas==(7,7):
-        return ("yellow","yellow")
+        return ("black","yellow")
     else:
-        return  ("azure","azure")
+        return  ("black","azure")
 
 def asignar_color_dificil(coordenadas):
     nivel='ND'
@@ -182,21 +183,21 @@ def asignar_color_dificil(coordenadas):
     descuen2=descuento2(nivel)
     descuen3=descuento3(nivel)
     if coordenadas in letra2:
-        return ("green yellow","green yellow")
+        return ("black","green yellow")
     elif coordenadas in letra3:
-        return ("blue","blue")
+        return ("black","blue")
     elif coordenadas in palabra2:
-        return ("green","green")
+        return ("black","green")
     elif coordenadas in palabra3:
-        return ("red", "red")
+        return ("black", "red")
     elif coordenadas in descuen1:
-        return ("red","red")
+        return ("black","red")
     elif coordenadas in descuen2:
-        return ("red2","red2")
+        return ("black","red2")
     elif coordenadas in descuen3:
-        return ("red3","red3")
+        return ("black","red3")
     else:
-        return  ("azure","azure")
+        return  ("black","azure")
 
 def asignar_color_medio(coordenadas):
     nivel='NM'
@@ -208,21 +209,21 @@ def asignar_color_medio(coordenadas):
     descuen2=descuento2(nivel)
     descuen3=descuento3(nivel)
     if coordenadas in letra2:
-        return ("green yellow","green yellow")
+        return ("black","green yellow")
     elif coordenadas in letra3:
-        return ("blue","blue")
+        return ("black","blue")
     elif coordenadas in palabra2:
-        return ("green","green")
+        return ("black","green")
     elif coordenadas in palabra3:
-        return ("red", "red")
+        return ("black", "red")
     elif coordenadas in descuen1:
-        return ("red","red")
+        return ("black","red")
     elif coordenadas in descuen2:
-        return ("red2","red2")
+        return ("black","red2")
     elif coordenadas in descuen3:
-        return ("red3","red3")
+        return ("black","red3")
     else:
-        return  ("azure","azure")
+        return  ("black","azure")
 
 def retornar_tablero_facil():
     datos={'size':(4,2), 'pad':(0,0), 'border_width':1}
@@ -396,9 +397,11 @@ def turno_compu(window,tablero_aux,valores_letras,vector_compu,contador_partida,
             break
 
 def actualizar_letras_jugador(window, letras_a_cambiar, nuevos, valores_letras, vector_jugador):
-    for i in letras_a_cambiar:
-        vector_jugador[i]=nuevos[i]
-        window.FindElement(i).Update(valores_letras[nuevos[i]]) 
+	cant=0
+	for i in letras_a_cambiar:
+		vector_jugador[i[1]]=nuevos[cant]
+		window.FindElement(i).Update(valores_letras[nuevos[cant]])
+		cant+=1 
 
 def forma_de_movimiento(pos_tupla, ultimo):
 	#defino si las letras se ponen en horizontal o vertical
@@ -427,23 +430,67 @@ def todas_las_pos(evento, coordenadas_palabras, movimiento, cant):
 	elif movimiento =='vertical':
 		posiciones_validas = vertical(coordenadas_palabras[0], coordenadas_palabras[len(coordenadas_palabras)-1])
 	return posiciones_validas
-    
-def turno_jugador(window,tablero_aux, turno,vector_jugador, cantidad_letras_jugador, valores_letras,contador_partida):
+
+def Definir_tipo(tipo_de_palabra):
+	if tipo_de_palabra == 'Sustantivos':
+		return 'NN'
+	elif tipo_de_palabra == 'Adjetivos':
+		return 'JJ'
+	elif tipo_de_palabra == 'Verbos':
+		return 'VB'
+
+def Verificar_palabra(palabra, nivel, tipo_de_palabra):
+	if palabra in pattern.es.lexicon.keys() or palabra in pattern.es.spelling.keys():
+		palabra_analizada=parse(palabra).split('/')
+		tipo=palabra_analizada[1]
+		if nivel=='Facil' and tipo in ('NN','VB','JJ'):
+			return True
+		if nivel=='Medio' and tipo in('NN','VB'):
+			return True
+		tipo_random=Definir_tipo(tipo_de_palabra)
+		if nivel=='Dificil' and tipo==tipo_random:
+			return True
+		else:
+			return False
+	else:
+		return False
+
+def volver_letras_a_posicion(window,tablero_aux,coordenada_letras, letras_usadas, palabra):
+	cant=0
+	for i in letras_usadas:
+		window.FindElement(i).Update(palabra[cant])
+		window.FindElement(coordenada_letras[cant]).Update('')
+		cant+=1
+	for i in coordenada_letras:
+		tablero_aux[i[0]][i[1]]=0
+	return tablero_aux
+	
+def ActivarDesactivarBoton(window, pos_letras, event, accion):
+	if (accion =='desabilitar'):
+		aux={'disabled':True}
+	else:
+		aux={'disabled':False}
+	for i in pos_letras:
+		if i!=event:
+			window.FindElement(i).Update(**aux)
+	
+def turno_jugador(window,tablero_aux, turno,vector_jugador, cantidad_letras_jugador, valores_letras,nivel,tipo_de_palabra, contador_partida, pos_de_letras):
 	palabra=[]
-	pos_de_letras=(0,1,2,3,4,5,6)
 	pos_validas=None
-	coordenada_palabras=[]
+	coordenada_de_letras=[]
 	letras_usadas=[]
 	cant=0
 	movimiento=''
-	while True:
+	while True and turno:
+		contador_partida+=1
 		event, values=window.read(timeout=2)
 		window.FindElement("Tiempo Partida").Update("Tiempo Partida: "+'{:02d}:{:02d}'.format((contador_partida // 100) // 60, (contador_partida// 100) % 60))
 		if event in pos_de_letras:
+			ActivarDesactivarBoton(window, pos_de_letras, event, 'desabilitar')
 			evento=None
 			while True:
 				evento, values1= window.read()
-				if tablero_aux[evento[0]][evento[1]]==0:
+				if not evento in(None, event) and tablero_aux[evento[0]][evento[1]]==0:
 					if pos_validas!=None:
 						if evento in pos_validas:
 							break
@@ -451,31 +498,54 @@ def turno_jugador(window,tablero_aux, turno,vector_jugador, cantidad_letras_juga
 						break       
 			if evento!=None:
 				if cant==1:
-					movimiento= forma_de_movimiento(listar[0],evento)
-				palabra.append(event)
-				tablero_aux[evento[0]][evento[1]]=vector_jugador[event]
-				window.FindElement(evento).Update(event)
-				coordenada_palabra.append(evento)
-				pos_validas=todas_las_pos(evento, coordenada_palabra, movimiento, cant)
+					movimiento= forma_de_movimiento(coordenada_de_letras[0],evento)
+				letra=valores_letras[vector_jugador[event[1]]]
+				palabra.append(letra)
+				tablero_aux[evento[0]][evento[1]]=vector_jugador[event[1]]
+				window.FindElement(evento).Update(letra)
+				window.FindElement(event).Update('')
+				coordenada_de_letras.append(evento)
+				pos_validas=todas_las_pos(evento, coordenada_de_letras, movimiento, cant)
 				cant=1
 				letras_usadas.append(event)
-			if event =='Verificar': 
-				verificacion=Verificar_palabra(palabra.split(), nivel)
+			ActivarDesactivarBoton(window, pos_de_letras, event, 'habilitar')
+		if event =='Verificar' and len(palabra)>=2: 
+			verificacion=Verificar_palabra(''.join(palabra).lower(), nivel, tipo_de_palabra)
+			if verificacion:
+				nuevos=generar_letras(len(letras_usadas), cantidad_letras_jugador, valores_letras)
+				actualizar_letras_jugador(window, letras_usadas, nuevos, valores_letras, vector_jugador)
+				turno=False
+			else:
+				tablero_aux=volver_letras_a_posicion(window, tablero_aux, coordenada_de_letras, letras_usadas, palabra)
+				movimiento=''
+				pos_validas=None
+				cant=0
+				palabra=[]
+				letras_usadas=[]
+				
 		if event=='Cambiar Fichas':
 			letras_a_cambiar=[]
+			evento=None
 			while True:
 				evento, values1=window.read()
 				if evento in pos_de_letras:
-					letras_a_cambiar.append(evento)
+					if evento in letras_a_cambiar:
+						window.FindElement(evento).Update(valores_letras[vector_jugador[evento[1]]])
+						letras_a_cambiar.remove(evento)
+					else:
+						letras_a_cambiar.append(evento)
+						window.FindElement(evento).Update('')
 				if evento =='Aceptar':
 					break
-			nuevos=generar_letras(len(letras_a_cambiar), cantidad_letras_jugador, valores_letras)
-			actualizar_letras_jugador(window, letras_a_cambiar, nuevos, valores_letras, vector_jugador)
+			if evento!=None:
+				nuevos=generar_letras(len(letras_a_cambiar), cantidad_letras_jugador, valores_letras)
+				actualizar_letras_jugador(window, letras_a_cambiar, nuevos, valores_letras, vector_jugador)
 		if event in (None, 'Terminar'):
 			break
-		contador_partida+=1
+	return turno
+		
 
-def jugar(window,cantidad_de_letras,dic):
+def jugar(window,cantidad_de_letras,dic, tipo_de_palabra):
 	tablero_aux=crear_tablero_aux()
 	valores_letras=asociar_estructura()
 	cantidad_letras_compu=total_letras(cantidad_de_letras)
@@ -484,17 +554,16 @@ def jugar(window,cantidad_de_letras,dic):
 	vector_jugador=generar_letras(7,cantidad_letras_jugador,valores_letras)
 	vector_compu=generar_letras(7,cantidad_letras_compu,valores_letras)
 	contador_partida=0
+	pos_de_letras=[]
 	for i in range(0,7):
-		window.FindElement("j"+str(i)).Update(valores_letras[vector_jugador[i]])
+		pos_de_letras.append(('a',i))
+		window.FindElement(('a',i)).Update(valores_letras[vector_jugador[i]])
 	turno=random.choice([True,False])
-	turno=False
+	turno=True
 	if turno:
-		turno_jugador(window, tablero_aux, turno, vector_jugador, cantidad_letras_jugador, valores_letras,contador_partida)
+		turno_jugador(window, tablero_aux, turno, vector_jugador, cantidad_letras_jugador, valores_letras,dic['Nivel'],tipo_de_palabra,contador_partida, pos_de_letras)
 	else:
-		turno_compu(window,tablero_aux,valores_letras,vector_compu,contador_partida,cantidad_letras_compu)
-
-
-        
+		turno_compu(window,tablero_aux,valores_letras,vector_compu,contador_partida,cantidad_letras_compu)    
 
 def tablero_de_juego(dic):
 
@@ -516,7 +585,7 @@ def tablero_de_juego(dic):
 
     letras_compu=[[sg.Button("",key=i ,size=(5,2)) for i in range(7)]]
 
-    letras_usuario=[[sg.Button("",key="j"+str(a), size=(5,2)) for a in range(7)]]
+    letras_usuario=[[sg.Button("",key=('a',a), size=(5,2)) for a in range(7)]]
 
     letras_con_otro_button=[[sg.Button('Verificar', size=(6,2)),sg.Column(letras_usuario),sg.Button("Cambiar Fichas",size=(6,2)), sg.Button('Aceptar', size=(6,2))]]
 
@@ -553,7 +622,7 @@ def tablero_de_juego(dic):
         if event in (None,'Terminar'):
             break
     if not event in (None,"Terminar"):
-        jugar(window,cantidad_de_letras,dic)
+        jugar(window,cantidad_de_letras,dic, tipo_de_palabra)
     else:
         window.close()
 
