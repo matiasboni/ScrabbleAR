@@ -279,33 +279,28 @@ def conjunto_de_letras(punto1,cantidad1, estilo_col3):
     return conjunto
 
 def buscar_combinacion(vector_compu,valores_letras):
-    letras=[]
-    for i in range(0,len(vector_compu)):
-        letras.append(valores_letras[vector_compu[i]].upper())
-    palabra=""
-    posiciones=[]
-    encontro=False
-    for i in range(0,len(vector_compu)):
-        aux=list(itertools.combinations(letras,i+1))
-        for j in aux:
-            permutaciones=list(itertools.permutations(j))
-            for tupla in permutaciones:
-                palabra="".join(tupla)
-                if (palabra in pattern.es.lexicon.keys() or palabra in pattern.es.spelling.keys())and len(tupla)>=4:
-                    for y in range(0,len(tupla)):
-                        cant_letras=tupla.count(tupla[y])
-                        cant=0
-                        for h in range(0,len(letras)):
-                            if tupla[y]==letras[h] and cant<cant_letras:
-                                posiciones.append(h)
-                                cant+=1
-                    encontro=True
-                    break
-            if encontro:
-                break
-        if encontro:
-            break
-    return(palabra,posiciones)
+	letras=[]
+	for i in range(0,len(vector_compu)):
+		letras.append(valores_letras[vector_compu[i]].upper())
+	palabra=""
+	posiciones=[]
+	conjuntos=set()
+	for i in range(1,len(letras)+1):
+		permutaciones=list(itertools.permutations(letras,i))
+		for j in permutaciones:
+			conjuntos.add(j)
+	for i in conjuntos:
+		aux="".join(i)
+		if (aux.lower() in pattern.es.lexicon.keys() or aux.lower() in pattern.es.spelling.keys()) and len(i)>=2:
+			palabra=aux
+			conjunto=i
+			break
+	if palabra!="":
+		for i in conjunto:
+			posicion=letras.index(i)
+			posiciones.append(posicion)
+			letras[posicion]="0"
+	return(palabra,posiciones)
 
 def actualizar_tablero(posiciones,orientacion,pos,window,valores_letras,vector_compu):
     if orientacion=="Vertical":
@@ -586,31 +581,30 @@ def turno_jugador(window,tablero_aux,vector_jugador, cantidad_letras_jugador, va
 	return contador_partida
 
 def jugar(window,cantidad_de_letras,dic, tipo_de_palabra, tiempo_maximo):
-    tablero_aux=crear_tablero_aux()
-    valores_letras=asociar_estructura()
-    cantidad_letras_compu=total_letras(cantidad_de_letras)
-    cantidad_letras_jugador=total_letras(cantidad_de_letras)
-    iniciar_tiempo_partida=int(round(time.time()*100))  
-    vector_jugador=generar_letras(7,cantidad_letras_jugador,valores_letras)
-    vector_compu=generar_letras(7,cantidad_letras_compu,valores_letras)
-    aux=puntaje_por_letra(dic['ListaPuntos'])
-    puntos_de_letras=aux[1]
-    contador_partida=0
-    pos_de_letras=[]
-    for i in range(0,7):
-        pos_de_letras.append(('a',i))
-        window.FindElement(('a',i)).Update(valores_letras[vector_jugador[i]])
-    turno=random.choice([True,False])
-    turno=True
-    while contador_partida!=tiempo_maximo:
-        if turno:
-            contador_partida=turno_jugador(window, tablero_aux, vector_jugador, cantidad_letras_jugador, valores_letras,dic['Nivel'],tipo_de_palabra,
-            contador_partida, pos_de_letras, puntos_de_letras, tiempo_maximo)
-            turno=False
-        else:
-            while not turno:
-                contador_partida=turno_compu(window,tablero_aux,valores_letras,vector_compu,contador_partida,cantidad_letras_compu,dic["Nivel"],puntos_de_letras)
-                window.read()
+	tablero_aux=crear_tablero_aux()
+	valores_letras=asociar_estructura()
+	cantidad_letras_compu=total_letras(cantidad_de_letras)
+	cantidad_letras_jugador=total_letras(cantidad_de_letras)
+	iniciar_tiempo_partida=int(round(time.time()*100))  
+	vector_jugador=generar_letras(7,cantidad_letras_jugador,valores_letras)
+	vector_compu=generar_letras(7,cantidad_letras_compu,valores_letras)
+	aux=puntaje_por_letra(dic['ListaPuntos'])
+	puntos_de_letras=aux[1]
+	contador_partida=0
+	pos_de_letras=[]
+	for i in range(0,7):
+		pos_de_letras.append(('a',i))
+		window.FindElement(('a',i)).Update(valores_letras[vector_jugador[i]])
+	turno=random.choice([True,False])
+	turno=True
+	while contador_partida!=tiempo_maximo:
+		if turno:
+			contador_partida=turno_jugador(window, tablero_aux, vector_jugador, cantidad_letras_jugador, valores_letras,dic['Nivel'],tipo_de_palabra,
+			contador_partida, pos_de_letras, puntos_de_letras, tiempo_maximo)
+			turno=False
+		else:
+			contador_partida=turno_compu(window,tablero_aux,valores_letras,vector_compu,contador_partida,cantidad_letras_compu,dic["Nivel"],puntos_de_letras)
+              
 
 def tablero_de_juego(dic):
 
