@@ -27,53 +27,36 @@ def asociar_estructura():
     valores_letras[28]="RR"
     return valores_letras
 
-
-def puntaje_por_letra(lista):
-    '''Función que retorna los puntos de cada letra en un diccionario'''
-    if len(lista)==0:
-        dic1={"AEOSIUNLRT":1,"CDG":2, 'MBP':3, 'FHVY':4, 'J':6, 'KLLÑQRRWX':8, 'Z':10}
-        dic2={'A':1,'E':1,'O':1,'S':1,'I':1,'U':1,'N':1,'L':1,'R':1,'T':1,'C':2,'D':2,'G':2,'M':3,'B':3,'P':3,'F':4,'H':4,'V':4,'Y':4,'J':6,'K':8,'LL':8,'Ñ':8,'Q':8,'RR':8,'W':8,'X':8,'Z':10}
-    else:
-        dic1={"AEOSIUNLRT":lista[0],"CDG":lista[1], 'MBP':lista[2], 'FHVY':lista[3], 'J':lista[4], 'KLLÑQRRWX':lista[5], 'Z':lista[6]}
-        dic2={"A":lista[0],"E":lista[0],"O":lista[0],"S":lista[0],"I":lista[0],"U":lista[0],"N":lista[0],"L":lista[0],"R":lista[0],"T":lista[0],
-        "C":lista[1],"D":lista[1],"G":lista[1],"M":lista[2],"B":lista[2],"P":lista[2],"F":lista[3],"H":lista[3],"V":lista[3],"Y":lista[3],
-        "J":lista[4],"K":lista[5],"LL":lista[5],"Ñ":lista[5],"Q":lista[5],"RR":lista[5],"W":lista[5],"X":lista[5],"Z":lista[6]}
-    return (dic1,dic2)
-
-def cantidad_por_letra(lista):
-    '''Función que retorna la cantidad de fichas por cada conjunto de letras'''
-    if len(lista)==0:
-         dic={"AEOSIUNLRT":1,"CDG":2, 'MBP':3, 'FHVY':4, 'J':6, 'KLLÑQRRWX':8, 'Z':10}
-    else:
-        dic={"AEOSIUNLRT":lista[0],"CDG":lista[1], 'MBP':lista[2], 'FHVY':lista[3], 'J':lista[4], 'KLLÑQRRWX':lista[5], 'Z':lista[6]}
+def Letras_Cantidad_y_Puntos(puntos, cantidad):
+    letras=['A','E','O','S','I','U','N','L','R','T','C','D','G','M','B','P','F','H','V','Y','J','K','LL','Ñ',"Q",'G','RR','W','X','Z']
+    dic={}
+    cant=0
+    for i in range(len(letras)):
+        dic.setdefault(letras[i],{'Puntos':puntos[cant], 'Cantidad':cantidad[cant]} )
+        if i in (9,12,15,19,20,27):
+            cant+=1
     return dic
-
-def total_letras(dic):
-    '''Función que retorna la cantidad total de fichas para cada letra'''
-    letras={"A":dic["AEOSIUNLRT"],"E":dic["AEOSIUNLRT"],"O":dic["AEOSIUNLRT"],"S":dic["AEOSIUNLRT"],
-    "I":dic["AEOSIUNLRT"],"U":dic["AEOSIUNLRT"],"N":dic["AEOSIUNLRT"],"R":dic["AEOSIUNLRT"],
-    "L":dic["AEOSIUNLRT"],"T":dic["AEOSIUNLRT"],"C":dic["CDG"],"D":dic["CDG"],
-    "G":dic["CDG"],"M":dic["MBP"],"B":dic["MBP"],"P":dic["MBP"],"F":dic["FHVY"],
-    "H":dic["FHVY"],"V":dic["FHVY"],"Y":dic["FHVY"],"J":dic["J"],
-    "K":dic["KLLÑQRRWX"],"LL":dic["KLLÑQRRWX"],"Ñ":dic["KLLÑQRRWX"],"Q":dic["KLLÑQRRWX"],
-    "RR":dic["KLLÑQRRWX"],"W":dic["KLLÑQRRWX"],"X":dic["KLLÑQRRWX"],"Z":dic["Z"]}
-    return letras
 
 def generar_letras(cantidad,dic,valores_letras):
     '''Función que recibe como parametro la cantidad de letras que se deben generar
      de forma aleatoria para que sean retornadas en una lista '''
     letras=[]
     aux=[]
+    suma=0
     for i in valores_letras.keys():
-        if valores_letras[i]!=0:
+        if dic[valores_letras[i]]["Cantidad"]!=0:
+            suma+=dic[valores_letras[i]]["Cantidad"]
             aux.append(i)
-    for i in range(cantidad):
-        num=random.choice(aux)
-        letras.append(num)
-        dic[valores_letras[num]]=dic[valores_letras[num]]-1
-        if dic[valores_letras[num]]==0:
-            aux.remove(num)
+    if suma>=cantidad:
+        for i in range(cantidad):
+            num=random.choice(aux)
+            letras.append(num)
+            dic[valores_letras[num]]['Cantidad']-=1
+            if dic[valores_letras[num]]==0:
+                aux.remove(num)
     return letras
+    
+
 
 def descuento3 (nivel):
     '''Función que retorna las coordenadas de las casillas de descuento 3 correspondientes a cada tablero '''
@@ -126,7 +109,7 @@ def pos_letra3(nivel):
     if nivel =='Facil':
         return [(1,7),(3,7),(7,1),(7,3),(7,11),(7,13),(11,7),(13,7)]
     elif nivel == 'Dificil':
-        return [(4,10),(7,7),(10,4)]
+        return [(4,10),(10,4)]
     else:
         return [(1,5),(1,9),(5,1),(5,13),(6,6),(6,8),(8,6),(8,8),(9,1),(9,13),(13,5),(13,9)]
 
@@ -152,7 +135,7 @@ def asignar_color(coordenadas,nivel):
     if coordenadas in letra2:
         return ("black","DarkBlue")
     elif coordenadas in letra3:
-        return ("black","light slate blue")
+        return ("black","DeepSkyBlue")
     elif coordenadas in palabra2:
         return ("black","MediumSlateBlue")
     elif coordenadas in palabra3:
@@ -187,7 +170,7 @@ def tipo_de_palabras(nivel):
         palabra=random.randrange(len(lista))
         return lista[palabra]
 
-def conjunto_de_letras(punto1,cantidad1, estilo_col3):
+def conjunto_de_letras(Dic_Letras_puntos_cantidad,estilo_col3):
     '''Funcion que retorna una estructura de las letras con sus puntos y la cantidad de letras 
     segun la configuración que se específico'''
     texto= [[sg.Text("LETRAS", **estilo_col3)],
@@ -198,9 +181,10 @@ def conjunto_de_letras(punto1,cantidad1, estilo_col3):
             [sg.Text("J: ",**estilo_col3)],
             [sg.Text("K,LL,Ñ,Q,RR,W,X: ",**estilo_col3)],
             [sg.Text("Z: ",**estilo_col3)]]
-    keys= punto1.keys()
-    puntos=[[sg.T(str(punto1[i]),**estilo_col3)]for i in keys]
-    cantidad=[[sg.T(str(cantidad1[i]),**estilo_col3)]for i in keys]
+    saltos=["A","C","M","F","J","K","Z"]
+    puntos=[[sg.T(str(Dic_Letras_puntos_cantidad[i]["Puntos"]),**estilo_col3)]for i in saltos]
+    cantidad=[[sg.T(str(Dic_Letras_puntos_cantidad[i]['Cantidad']),**estilo_col3)]for i in saltos]
+
 
     pun=[[sg.Text("PUNTOS", **estilo_col3)]]
     pun.extend(puntos)
@@ -303,15 +287,15 @@ def horizontal_compu(window,pos,tablero_aux,posiciones,vector_compu,valores_letr
             posiciones_matriz=actualizar_matriz(tablero_aux,"Horizontal",pos,posiciones,vector_compu)
     return (ok,posiciones_matriz)
 
-def actualizar_vector_compu(vector_compu,posiciones,valores_letras,cantidad_letras_compu):
+def actualizar_vector_compu(vector_compu,posiciones,valores_letras,letras_compu):
     '''Función que actualiza el atril de la computadora'''
-    letras=generar_letras(len(posiciones),cantidad_letras_compu,valores_letras)
+    letras=generar_letras(len(posiciones),letras_compu,valores_letras)
     indice=0
     for i in range(0,len(letras)):
         vector_compu[posiciones[indice]]=letras[i]
         indice+=1
 
-def calcular_puntos(botones_del_tablero,tablero_aux,nivel,valores_letras,puntos_de_letras):
+def calcular_puntos(botones_del_tablero,tablero_aux,nivel,valores_letras,letras):
     '''Función que calcula y retorna los puntos logrados en una jugada'''
     des1=descuento1(nivel)
     des2=descuento2(nivel)
@@ -324,7 +308,7 @@ def calcular_puntos(botones_del_tablero,tablero_aux,nivel,valores_letras,puntos_
     cant_pal2=0
     cant_pal3=0
     for i in botones_del_tablero:
-        valor_letra=puntos_de_letras[valores_letras[tablero_aux[i[0]][i[1]]]]
+        valor_letra=letras[valores_letras[tablero_aux[i[0]][i[1]]]]["Puntos"]
         if i in letra2:
             valor_letra=valor_letra*2
         elif i in letra3:
@@ -348,7 +332,7 @@ def calcular_puntos(botones_del_tablero,tablero_aux,nivel,valores_letras,puntos_
             total=total*3
     return total 
     
-def turno_compu(window,tablero_aux,valores_letras,vector_compu,iniciar_tiempo_partida,cantidad_letras_compu,nivel,puntos_de_letras,tipo_de_palabra,contador_partida):
+def turno_compu(window,tablero_aux,valores_letras,vector_compu,iniciar_tiempo_partida,letras_compu,nivel,tipo_de_palabra,contador_partida):
     '''Función que ejecuta el turno de la computadora '''
     contador_partida=int(round(time.time() * 100)) -iniciar_tiempo_partida
     window.FindElement("Tiempo Partida").Update("Tiempo Partida: "+'{:02d}:{:02d}'.format((contador_partida // 100) // 60, (contador_partida// 100) % 60))
@@ -378,12 +362,12 @@ def turno_compu(window,tablero_aux,valores_letras,vector_compu,iniciar_tiempo_pa
                     ok,posiciones_matriz=horizontal_compu(window,pos,tablero_aux,posiciones,vector_compu,valores_letras)
                     if not ok:
                         ok,posiciones_matriz=vertical_compu(window,pos,tablero_aux,posiciones,vector_compu,valores_letras)
-        total_palabra=calcular_puntos(posiciones_matriz,tablero_aux,nivel,valores_letras,puntos_de_letras)
-        actualizar_vector_compu(vector_compu,posiciones,valores_letras,cantidad_letras_compu)
+        total_palabra=calcular_puntos(posiciones_matriz,tablero_aux,nivel,valores_letras,letras_compu)
+        actualizar_vector_compu(vector_compu,posiciones,valores_letras,letras_compu)
     else:
         for i in vector_compu:
-            cantidad_letras_compu[valores_letras[i]]+=1
-        actualizar_vector_compu(vector_compu,[0,1,2,3,4,5,6],valores_letras,cantidad_letras_compu)
+            letras_compu[valores_letras[i]]["Cantidad"]+=1
+        actualizar_vector_compu(vector_compu,[0,1,2,3,4,5,6],valores_letras,letras_compu)
     return (contador_partida,total_palabra)
 
 def actualizar_letras_jugador(window, letras_a_cambiar, nuevos, valores_letras, vector_jugador):
@@ -488,9 +472,10 @@ def Devolver_letras_a_cambiar(window, valores_letras, vector_jugador, pos_de_let
             break
     return (letras_a_cambiar, contador_partida)
 
-def turno_jugador(window,tablero_aux,vector_jugador, cantidad_letras_jugador, valores_letras,nivel,tipo_de_palabra,iniciar_tiempo_partida, pos_de_letras, 
-    puntos_de_letras, tiempo_maximo, cantidad_veces_cambiado,contador_partida):
+def turno_jugador(window,tablero_aux,vector_jugador, letras_jugador, valores_letras,nivel,tipo_de_palabra,iniciar_tiempo_partida, 
+     tiempo_maximo, cantidad_veces_cambiado,contador_partida):
     '''Funcion que ejecuta el turno del jugador'''
+    pos_de_letras=[('a',0),('a',1),('a',2),('a',3),('a',4),('a',5),('a',6)]
     pos_validas=None
     palabra=[]
     coordenada_de_letras=[]
@@ -503,7 +488,7 @@ def turno_jugador(window,tablero_aux,vector_jugador, cantidad_letras_jugador, va
         event, values=window.read(timeout=10)
         contador_partida=int(round(time.time() * 100)) -iniciar_tiempo_partida
         window.FindElement("Tiempo Partida").Update("Tiempo Partida: "+'{:02d}:{:02d}'.format((contador_partida // 100) // 60, (contador_partida// 100) % 60))
-        if event in pos_de_letras:
+        if event in pos_de_letras and (not event in letras_usadas):
             ActivarDesactivarBoton(window, pos_de_letras, event, 'desabilitar')
             evento=None
             while True and contador_partida<tiempo_maximo:
@@ -537,23 +522,24 @@ def turno_jugador(window,tablero_aux,vector_jugador, cantidad_letras_jugador, va
         if event =='Verificar' and len(palabra)>=2: 
             verificacion=Verificar_palabra(''.join(palabra).lower(), nivel, tipo_de_palabra)
             if verificacion and tablero_aux[7][7]!=0 :
-                nuevos=generar_letras(len(letras_usadas), cantidad_letras_jugador, valores_letras)
-                actualizar_letras_jugador(window, letras_usadas, nuevos, valores_letras, vector_jugador)
-                puntos_palabra=calcular_puntos(coordenada_de_letras,tablero_aux,nivel,valores_letras, puntos_de_letras)
+                nuevos=generar_letras(len(letras_usadas), letras_jugador, valores_letras)
+                if len(nuevos)!=0:
+                    actualizar_letras_jugador(window, letras_usadas, nuevos, valores_letras, vector_jugador)
+                    puntos_palabra=calcular_puntos(coordenada_de_letras,tablero_aux,nivel,valores_letras,letras_jugador)
                 sigue=False
             else:
                 tablero_aux=volver_letras_a_posicion(window, tablero_aux, coordenada_de_letras, letras_usadas, vector_jugador, valores_letras)
                 pos_validas=None
-                cant=0
+                cant=0 
                 palabra=[]
                 letras_usadas=[]
                 coordenada_de_letras=[]
                 movimiento=''
         if event=='Cambiar Fichas' and cantidad_veces_cambiado<3 and len(palabra)==0:
             letras_a_cambiar, contador_partida =Devolver_letras_a_cambiar(window, valores_letras, vector_jugador, pos_de_letras,tiempo_maximo, iniciar_tiempo_partida)
-            nuevos=generar_letras(len(letras_a_cambiar), cantidad_letras_jugador, valores_letras)
+            nuevos=generar_letras(len(letras_a_cambiar), letras_jugador, valores_letras)
             for i in letras_a_cambiar:
-                cantidad_letras_jugador[valores_letras[vector_jugador[i[1]]]]+=1
+                letras_jugador[valores_letras[vector_jugador[i[1]]]]['Cantidad']+=1
             actualizar_letras_jugador(window, letras_a_cambiar, nuevos, valores_letras, vector_jugador)
             cantidad_veces_cambiado+=1
             if cantidad_veces_cambiado==3:
@@ -566,35 +552,31 @@ def turno_jugador(window,tablero_aux,vector_jugador, cantidad_letras_jugador, va
             exit()
     return (contador_partida, puntos_palabra, cantidad_veces_cambiado)
 
-def jugar(window,cantidad_de_letras,dic, tipo_de_palabra, tiempo_maximo):
+def jugar(window,Dic_Letras_puntos_cantidad,dic, tipo_de_palabra, tiempo_maximo):
     '''Función que inicializa las variables del juego y se empieza a jugar'''
     tablero_aux=crear_tablero_aux()
     valores_letras=asociar_estructura()
-    cantidad_letras_compu=total_letras(cantidad_de_letras)
-    cantidad_letras_jugador=total_letras(cantidad_de_letras)
+    letras_compu=Dic_Letras_puntos_cantidad.copy()
+    letras_jugador=Dic_Letras_puntos_cantidad.copy()
     iniciar_tiempo_partida=int(round(time.time()*100))  
-    vector_jugador=generar_letras(7,cantidad_letras_jugador,valores_letras)
-    vector_compu=generar_letras(7,cantidad_letras_compu,valores_letras)
-    aux=puntaje_por_letra(dic['ListaPuntos'])
-    puntos_de_letras=aux[1]
+    vector_jugador=generar_letras(7,letras_jugador,valores_letras)
+    vector_compu=generar_letras(7,letras_compu,valores_letras)
     contador_partida=0
-    pos_de_letras=[]
     puntos_total_jugador=0
     puntos_total_computadora=0
     for i in range(0,7):
-        pos_de_letras.append(('a',i))
         window.FindElement(('a',i)).Update(valores_letras[vector_jugador[i]])
     turno=random.choice([True,False])
     cantidad_veces_cambiado=0
     while  contador_partida<tiempo_maximo:
         if turno:
-            contador_partida,puntos_palabra,cantidad_veces_cambiado=turno_jugador(window, tablero_aux, vector_jugador, cantidad_letras_jugador, valores_letras,dic['Nivel'],tipo_de_palabra,
-            iniciar_tiempo_partida, pos_de_letras, puntos_de_letras, tiempo_maximo, cantidad_veces_cambiado,contador_partida)
+            contador_partida,puntos_palabra,cantidad_veces_cambiado=turno_jugador(window, tablero_aux, vector_jugador, letras_jugador, valores_letras,dic['Nivel'],tipo_de_palabra,
+            iniciar_tiempo_partida, tiempo_maximo, cantidad_veces_cambiado,contador_partida)
             puntos_total_jugador=puntos_total_jugador+puntos_palabra
             window.FindElement('Puntaje Jugador').Update('Tu Puntaje: '+str(puntos_total_jugador))
             turno=False
         else:
-            contador_partida,total_palabra=turno_compu(window,tablero_aux,valores_letras,vector_compu,iniciar_tiempo_partida,cantidad_letras_compu,dic["Nivel"],puntos_de_letras,tipo_de_palabra,contador_partida)
+            contador_partida,total_palabra=turno_compu(window,tablero_aux,valores_letras,vector_compu,iniciar_tiempo_partida,letras_compu,dic["Nivel"],tipo_de_palabra,contador_partida)
             puntos_total_computadora=puntos_total_computadora+total_palabra
             window.FindElement("Puntaje Computadora").Update("Puntaje Computadora: "+str(puntos_total_computadora),font=("Helvetica",15))
             turno=True
@@ -603,9 +585,7 @@ def tablero_de_juego(dic):
     '''Función que inicializa y muestra toda la pantalla del tablero'''
 
     tablero=retornar_tablero(dic['Nivel'])
-    aux=puntaje_por_letra(dic['ListaPuntos'])
-    puntos_de_letras=aux[0]
-    cantidad_de_letras=cantidad_por_letra(dic["ListaFichas"])
+    Dic_Letras_puntos_cantidad=Letras_Cantidad_y_Puntos(dic["ListaPuntos"],dic["ListaFichas"])
     tipo_de_palabra=tipo_de_palabras(dic['Nivel'])
     tiempo_maximo=dic['Tiempo']*6000
 
@@ -628,23 +608,23 @@ def tablero_de_juego(dic):
 
     letras_con_otro_button=[[sg.Button('Verificar', size=(6,2)),sg.Column(letras_usuario),sg.Button("Cambiar Fichas",size=(6,2)), sg.Button('Aceptar', size=(6,2))]]
 
-    columna2=[  [sg.Text('SCRABBLEAR',size=(86,1), justification='center')],
+    columna2=[  [sg.Text("",size=(88,1))],
                 [sg.Column(letras_compu, justification='center')],
 				[sg.Column(tablero,justification="center")],
 				[sg.Column(letras_con_otro_button, justification='center')]]
 
-    estilo_col3={"auto_size_text":True,"justification":'left',"font":('Helvetica',10), 'relief':sg.RELIEF_RIDGE}
+    estilo_col3={"auto_size_text":True,"justification":'center',"font":('Helvetica',10), 'relief':sg.RELIEF_RIDGE}
 
-    conjunto1=conjunto_de_letras(puntos_de_letras,cantidad_de_letras, estilo_col3)
+    conjunto1=conjunto_de_letras(Dic_Letras_puntos_cantidad, estilo_col3)
 
-    columna3=[  [sg.Text("",size=(25,1))],[sg.Frame('', 
+    columna3=[  [sg.Text("",size=(1,3))],[sg.Frame('', 
                 layout=[[sg.Text('CONSIDERACIONES',justification="center",auto_size_text=True,font=("Helvetica",20))],
 				[sg.Text("NIVEL:"+dic["Nivel"],**estilo_col3)],
                 [sg.Column(conjunto1, pad=(0,0))],
                 [sg.Text(tipo_de_palabra)],
                 [sg.Text("TIEMPO: "+str(dic["Tiempo"])[0]+" Min",auto_size_text=True,justification="left",font=("Helvetica,12"))],
                 [sg.Button("",size=(2,1),button_color=("red","VioletRed")),sg.Text("Descuento 1",justification="left",auto_size_text=True),sg.Button("",size=(2,1),button_color=("red","DarkBlue")),sg.Text("Letra x2",justification="left",auto_size_text=True)],
-                [sg.Button("",size=(2,1),button_color=("red","pale violet red")),sg.Text("Descuento 2",justification="left",auto_size_text=True),sg.Button("",size=(2,1),button_color=("red","light slate blue")),sg.Text("Letra x3",justification="left",auto_size_text=True)],
+                [sg.Button("",size=(2,1),button_color=("red","pale violet red")),sg.Text("Descuento 2",justification="left",auto_size_text=True),sg.Button("",size=(2,1),button_color=("red","DeepSkyBlue")),sg.Text("Letra x3",justification="left",auto_size_text=True)],
                 [sg.Button("",size=(2,1),button_color=("red","PaleVioletRed4")),sg.Text("Descuento 3",justification="left",auto_size_text=True),sg.Button("",size=(2,1),button_color=("red","MediumSlateBlue")),sg.Text("Palabra x2",justification="left",auto_size_text=True)],
                 [sg.Button("",size=(2,1),button_color=("red","#97755c")),sg.Text("Comienzo",justification="left",size=(9,0)),sg.Button("",size=(2,1),button_color=("red","SlateBlue4")),sg.Text("Palabra x3",justification="left",auto_size_text=True)]])],
              ]
@@ -652,8 +632,8 @@ def tablero_de_juego(dic):
     layout= [
 			    [sg.Column(columna1), sg.Column(columna2), sg.Column(columna3)]]
 
-    window=sg.Window('ScrabbleAR', layout, default_element_size=(30, 1), return_keyboard_events=True, no_titlebar=False,
-						margins=(0,0),location=(0,0),element_justification="center").finalize()
+    window=sg.Window('ScrabbleAR', layout, return_keyboard_events=True, no_titlebar=False,
+						margins=(0,0),location=(0,0)).finalize()
     window.maximize()
     while True:
         event,values=window.read()
@@ -662,7 +642,7 @@ def tablero_de_juego(dic):
         if event in (None,'Terminar'):
             break
     if not event in (None,"Terminar"):
-        jugar(window,cantidad_de_letras,dic, tipo_de_palabra, tiempo_maximo)
+        jugar(window,Dic_Letras_puntos_cantidad,dic, tipo_de_palabra, tiempo_maximo)
     elif event==None:
         exit()
     window.close()
@@ -678,9 +658,10 @@ def maximo_de_tiempo(nivel):
 
 def Actualizar_diccionario(diccionario, values):
     '''Función que actualiza la estructura del diccionario segun la configuración realizada del juego'''
-    diccionario['Tiempo']=values['time']
-    diccionario['ListaPuntos']=[values['p1'],values['p2'],values['p3'],values['p4'],values['p5'],values['p6'],values['p7']]
-    diccionario['ListaFichas']=[values['c1'],values['c2'],values['c3'],values['c4'],values['c5'],values['c6'],values['c7']]
+    if values['time']!=None:
+        diccionario['Tiempo']=values['time']
+        diccionario['ListaPuntos']=[values['p1'],values['p2'],values['p3'],values['p4'],values['p5'],values['p6'],values['p7']]
+        diccionario['ListaFichas']=[values['c1'],values['c2'],values['c3'],values['c4'],values['c5'],values['c6'],values['c7']]
 
 def Actualizar_Configuracion(diccionario):
     '''Función que retorna y actualiza los valores por defecto de la pantalla configuración'''
