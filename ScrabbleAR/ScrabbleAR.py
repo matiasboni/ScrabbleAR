@@ -2,6 +2,7 @@ import PySimpleGUI as sg
 import random
 import time
 import pattern.es
+import sys
 from pattern.es import parse
 import itertools
         
@@ -153,11 +154,34 @@ def asignar_color(coordenadas,nivel):
 
 def retornar_tablero(nivel):
     '''Función que recibe como parametro el nivel y retorna el tablero que le corresponde'''  
-    datos={"size":(4,2),"pad":(0,0),"border_width":1}
+    if sys.platform=="linux":
+        datos={"size":(2,2),"pad":(0,0),"border_width":1}
+    else:    
+        datos={"size":(4,2),"pad":(0,0),"border_width":1}
     tablero=[
             [sg.Button('',key=(i,j),button_color=asignar_color((i,j),nivel), **datos,) for j in range(15)]for i in range(15)]
     return tablero
-        
+
+def retornar_columna1():
+    if sys.platform=="win32":
+        datos={1:{"size":(11,2)},2:{"font":("Helvetica",15)},3:{"font":("Helvetica",15),"size":(25,1)}
+        ,4:{"size":(30,25),"key":"datos"},5:{"size":(11,2)}}
+    elif sys.platform=="linux":
+        datos={1:{"size":(11,2)},2:{"font":("Helvetica",15)},3:{"font":("Helvetica",15),"size":(25,1)}
+        ,4:{"size":(44,25),"key":"datos"},5:{"size":(11,2)}}
+    
+    columna1=[  [sg.Button('Iniciar',**datos[1]),sg.Button("Posponer",**datos[1]),sg.Button('Terminar', **datos[1])],
+                 [sg.Text("",size=(1,2))],
+                 [sg.Frame("",
+                 layout=[[sg.Text('Tiempo Partida: 00:00',key="Tiempo Partida",**datos[2])],
+                 [sg.Text("Tiempo Jugada: 00:00",key="Tiempo Jugada",**datos[2])],
+                 [sg.Text("Tu Puntaje: 00",key="Puntaje Jugador",**datos[3])],
+                 [sg.Text("Puntaje Computadora: 00",key="Puntaje Computadora",**datos[3])],
+                 [sg.Listbox(values=[],**datos[4])]])],
+                 [sg.Text("",size=(1,2))],
+                 [sg.Button('Verificar',**datos[5]),sg.Button("Cambiar Fichas",**datos[5]), sg.Button('Aceptar',**datos[5])]
+                 ]
+    return columna1   
 
 def tipo_de_palabras(nivel):
     '''Función que recibe como parámetro el nivel y retorna los tipos de palabras validas'''
@@ -184,7 +208,6 @@ def conjunto_de_letras(Dic_Letras_puntos_cantidad,estilo_col3):
     saltos=["A","C","M","F","J","K","Z"]
     puntos=[[sg.T(str(Dic_Letras_puntos_cantidad[i]["Puntos"]),**estilo_col3)]for i in saltos]
     cantidad=[[sg.T(str(Dic_Letras_puntos_cantidad[i]['Cantidad']),**estilo_col3)]for i in saltos]
-
 
     pun=[[sg.Text("PUNTOS", **estilo_col3)]]
     pun.extend(puntos)
@@ -216,7 +239,7 @@ def buscar_combinacion(vector_compu,valores_letras,tipo_de_palabras):
             conjuntos.add(j)
     for i in conjuntos:
         aux="".join(i)
-        if (aux.lower() in pattern.es.lexicon.keys() or aux.lower() in pattern.es.spelling.keys()) and len(i)>=2:
+        if (aux.lower() in pattern.es.lexicon.keys() and aux.lower() in pattern.es.spelling.keys()) and len(i)>=2:
             tipo_palabra=parse(aux).split("/")[1]
             if tipo_palabra in tipos or len(tipos)==0:
                 palabra=aux
@@ -416,7 +439,7 @@ def Definir_tipo(tipo_de_palabra):
 
 def Verificar_palabra(palabra, nivel, tipo_de_palabra):
     '''Función que valida la palabra ingresada por el jugador segun el nivel y el tipo de palabra'''
-    if palabra in pattern.es.lexicon.keys() or palabra in pattern.es.spelling.keys():
+    if palabra in pattern.es.lexicon.keys() and palabra in pattern.es.spelling.keys():
         palabra_analizada=parse(palabra).split('/')
         tipo=palabra_analizada[1]
         if nivel=='Facil':
@@ -592,57 +615,60 @@ def jugar(window,Dic_Letras_puntos_cantidad,dic, tipo_de_palabra, tiempo_maximo)
 			window.FindElement("Puntaje Computadora").Update("Puntaje Computadora: "+str(puntos_total_computadora),font=("Helvetica",15))
 			turno=True
 
-def tablero_de_juego(dic):
-    '''Función que inicializa y muestra toda la pantalla del tablero'''
+def retornar_Columna2(dic):
 
-    tablero=retornar_tablero(dic['Nivel'])
-    Dic_Letras_puntos_cantidad=Letras_Cantidad_y_Puntos(dic["ListaPuntos"],dic["ListaFichas"])
-    tipo_de_palabra=tipo_de_palabras(dic['Nivel'])
-    tiempo_maximo=dic['Tiempo']*6000
+    if sys.platform=='linux':
+        T=(3,1)
+    else:
+        T=(5,2)
+    letras_compu=[[sg.Button("",key=i ,size=T) for i in range(7)]]
 
-
-    columna1=[  [sg.Button('Iniciar', size=(11,2),auto_size_button=True),sg.Button("Posponer",size=(11,2)),sg.Button('Terminar', size=(11,2),auto_size_button=True)],
-                [sg.Text("",size=(1,2))],
-                [sg.Frame("",
-                layout=[[sg.Text('Tiempo Partida: 00:00',key="Tiempo Partida",auto_size_text=True, font=("Helvetica",15))],
-                [sg.Text("Tiempo Jugada: 00:00",key="Tiempo Jugada",auto_size_text=True,font=("Helvetica",15))],
-                [sg.Text("Tu Puntaje: 00",size=(25,1),key="Puntaje Jugador",font=("Helvetica",15))],
-                [sg.Text("Puntaje Computadora: 00",key="Puntaje Computadora",size=(25,1),font=("Helvetica",15))],
-                [sg.Listbox(values=[], key='datos',size=(30,25))]])]
-         ]
+    letras_usuario=[[sg.Button("",key=('a',a), size=T )for a in range(7)]]
     
-    letras_compu=[[sg.Button("",key=i ,size=(5,2)) for i in range(7)]]
-
-    letras_usuario=[[sg.Button("",key=('a',a), size=(5,2)) for a in range(7)]]
-
-    letras_con_otro_button=[[sg.Button('Verificar', size=(6,2)),sg.Column(letras_usuario),sg.Button("Cambiar Fichas",size=(6,2)), sg.Button('Aceptar', size=(6,2))]]
-
-    columna2=[  [sg.Text("",size=(88,1))],
+    tablero=retornar_tablero(dic['Nivel'])
+    
+    columna2=[  
                 [sg.Column(letras_compu, justification='center')],
 				[sg.Column(tablero,justification="center")],
-				[sg.Column(letras_con_otro_button, justification='center')]]
-
-    estilo_col3={"auto_size_text":True,"justification":'center',"font":('Helvetica',10), 'relief':sg.RELIEF_RIDGE}
-
+				[sg.Column(letras_usuario, justification='center')]]
+    return columna2
+    
+def retornar_Columna3(dic, Dic_Letras_puntos_cantidad, tipo_de_palabra):
+    
+    estilo_col3={"justification":'center',"font":('Helvetica',10), 'relief':sg.RELIEF_RIDGE}
+    
     conjunto1=conjunto_de_letras(Dic_Letras_puntos_cantidad, estilo_col3)
-
+    
     columna3=[  [sg.Text("",size=(1,3))],[sg.Frame('', 
                 layout=[[sg.Text('CONSIDERACIONES',justification="center",auto_size_text=True,font=("Helvetica",20))],
 				[sg.Text("NIVEL:"+dic["Nivel"],**estilo_col3)],
                 [sg.Column(conjunto1, pad=(0,0))],
                 [sg.Text(tipo_de_palabra)],
-                [sg.Text("TIEMPO: "+str(dic["Tiempo"])[0]+" Min",auto_size_text=True,justification="left",font=("Helvetica,12"))],
+                [sg.Text("TIEMPO: "+str(dic["Tiempo"])[0]+" Min",auto_size_text=True,justification="left",font=("Helvetica",12))],
                 [sg.Button("",size=(2,1),button_color=("red","VioletRed")),sg.Text("Descuento 1",justification="left",auto_size_text=True),sg.Button("",size=(2,1),button_color=("red","DarkBlue")),sg.Text("Letra x2",justification="left",auto_size_text=True)],
                 [sg.Button("",size=(2,1),button_color=("red","pale violet red")),sg.Text("Descuento 2",justification="left",auto_size_text=True),sg.Button("",size=(2,1),button_color=("red","DeepSkyBlue")),sg.Text("Letra x3",justification="left",auto_size_text=True)],
                 [sg.Button("",size=(2,1),button_color=("red","PaleVioletRed4")),sg.Text("Descuento 3",justification="left",auto_size_text=True),sg.Button("",size=(2,1),button_color=("red","MediumSlateBlue")),sg.Text("Palabra x2",justification="left",auto_size_text=True)],
-                [sg.Button("",size=(2,1),button_color=("red","#97755c")),sg.Text("Comienzo",justification="left",size=(9,0)),sg.Button("",size=(2,1),button_color=("red","SlateBlue4")),sg.Text("Palabra x3",justification="left",auto_size_text=True)]])],
+                [sg.Button("",size=(2,1),button_color=("red","#97755c")),sg.Text("Comienzo",justification="left",size=(10,0)),sg.Button("",size=(2,1),button_color=("red","SlateBlue4")),sg.Text("Palabra x3",justification="left",auto_size_text=True)]])],
              ]
+    return columna3
+
+def tablero_de_juego(dic):
+    '''Función que inicializa y muestra toda la pantalla del tablero'''
+    Dic_Letras_puntos_cantidad=Letras_Cantidad_y_Puntos(dic["ListaPuntos"],dic["ListaFichas"])
+    tipo_de_palabra=tipo_de_palabras(dic['Nivel'])
+    tiempo_maximo=dic['Tiempo']*6000
+
+    columna1=retornar_columna1()
+    
+    columna2=retornar_Columna2(dic)
+
+    columna3=retornar_Columna3(dic, Dic_Letras_puntos_cantidad,tipo_de_palabra)
 
     layout= [
-			    [sg.Column(columna1), sg.Column(columna2), sg.Column(columna3)]]
+			    [sg.Column(columna1),sg.Text("",size=(3,1)),sg.Column(columna2),sg.T("",size=(3,1)),sg.Column(columna3)]]
 
-    window=sg.Window('ScrabbleAR', layout, return_keyboard_events=True, no_titlebar=False,
-						margins=(0,0),location=(0,0)).finalize()
+    window=sg.Window('ScrabbleAR', layout, return_keyboard_events=True,
+						margins=(0,0),location=(0,0),resizable=True).Finalize()
     window.maximize()
     while True:
         event,values=window.read()
@@ -683,53 +709,53 @@ def Actualizar_Configuracion(diccionario):
     puntos=diccionario['ListaPuntos']
     cantidad=diccionario['ListaFichas']    
     return (puntos, cantidad,lista)    
+
+def conjunto_letras_confi(maximo, default, clave): 
+    letras=[[sg.T('A, E, O, S, I, U, N, L, R, T: ', size=(20,1)),sg.InputCombo(maximo,default_value=default[0],size=(5,1), key=clave+'1')],
+            [sg.T('C, D, G: ',size=(20,1)),sg.InputCombo(maximo,default_value=default[1],size=(5,1), key=clave+'2')],
+            [sg.T('M, B, P: ',size=(20,1)),sg.InputCombo(maximo,default_value=default[2],size=(5,1), key=clave+'3')],
+            [sg.T('F, H, V, Y: ',size=(20,1)),sg.InputCombo(maximo,default_value=default[3],size=(5,1), key=clave+'4')],
+            [sg.T('J: ',size=(20,1)),sg.InputCombo(maximo,default_value=default[4],size=(5,1), key=clave+'5')],
+            [sg.T('K, LL, Ñ, Q, RR, W, X: ',size=(20,1)),sg.InputCombo(maximo,default_value=default[5],size=(5,1), key=clave+"6")],
+            [sg.T('Z: ',size=(20,1)),sg.InputCombo(maximo,default_value=default[6],size=(5,1), key=clave+"7")]]
+    return letras
+    
+def Retornar_nivel(lista):
+    dato={'font':('Helvetica'), 'enable_events':True}
+    nivel=[
+            [sg.Radio('Dificil',1, size=(20,1),default=lista[0],key='Dificil',**dato)],
+            [sg.Radio('Medio',1, size=(20,1),default=lista[1],**dato)],
+            [sg.Radio('Facil',1, size=(20,1),default=lista[2],key='Facil',**dato)]]
+    return nivel
+    
+def retornar_tiempo(dic):
+    tiempo=[[sg.T('Tiempo de Juego',justification='center')],
+            [sg.Slider(default_value=dic['Tiempo'],key='time', orientation='h')]]
+    return tiempo
     
 def Configuracion_de_juego(diccionario):
     '''Función que define y muestra la pantalla de configuración para que
     se realizen los cambios por parte del jugador'''
     maximo_de_cantidad=[1,2,3,4,5,6,7,8,9,10,11]
     puntos, cantidad, lista=Actualizar_Configuracion(diccionario)
-    nivel=[
-            [sg.Radio('Dificil',1, size=(20,1),default=lista[0],key='Dificil',font=('Helvetica', 15), enable_events=True)],
-            [sg.Radio('Medio',1, size=(20,1),default=lista[1],key='Medio',font=('Helvetica', 15), enable_events=True)],
-            [sg.Radio('Facil',1, size=(20,1),default=lista[2],key='Facil',font=('Helvetica', 15), enable_events=True)],]
-
-    tiempo=[[sg.T('Tiempo de Juego',justification='center')],
-            [sg.Slider(default_value=diccionario['Tiempo'],key='time', orientation='h')]]
+    fichas_puntos=conjunto_letras_confi(maximo_de_cantidad,puntos,"p")
+    fichas_cantidad=conjunto_letras_confi(maximo_de_cantidad, cantidad,'c')
+    nivel=Retornar_nivel(lista)
+    
+    tiempo=retornar_tiempo(diccionario)
 
     estilo={'size':(30,1) , 'justification':'center', 'font':('Helvetica', 20), 'relief':sg.RELIEF_RIDGE}
 
     Configuracion=[ [sg.Text('NIVEL',**estilo)],
                     [sg.Column(nivel), sg.Column(tiempo)],
                     [sg.Text('Puntaje de las Fichas',**estilo)],
-                    [sg.T('A, E, O, S, I, U, N, L, R, T: ', size=(20,1)),sg.InputCombo(maximo_de_cantidad,default_value=puntos[0],size=(5,1), key='p1')],
-                    [sg.T('C, D, G: ',size=(20,1)),sg.InputCombo(maximo_de_cantidad,default_value=puntos[1],size=(5,1), key='p2')],
-                    [sg.T('M, B, P: ',size=(20,1)),sg.InputCombo(maximo_de_cantidad,default_value=puntos[2],size=(5,1), key='p3')],
-                    [sg.T('F, H, V, Y: ',size=(20,1)),sg.InputCombo(maximo_de_cantidad,default_value=puntos[3],size=(5,1), key='p4')],
-                    [sg.T('J: ',size=(20,1)),sg.InputCombo(maximo_de_cantidad,default_value=puntos[4],size=(5,1), key='p5')],
-                    [sg.T('K, LL, Ñ, Q, RR, W, X: ',size=(20,1)),sg.InputCombo(maximo_de_cantidad,default_value=puntos[5],size=(5,1), key='p6')],
-                    [sg.T('Z: ',size=(20,1)),sg.InputCombo(maximo_de_cantidad,default_value=puntos[6],size=(5,1), key='p7')],
+                    [sg.Column(fichas_puntos)],
                     [sg.T('Cantidad de Fichas por Letra', **estilo)],
-                    [sg.T('A, E, O, S, I, U, N, L, R, T: ', size=(20,1)),sg.InputCombo(maximo_de_cantidad,default_value=cantidad[0],size=(5,1), key='c1')],
-                    [sg.T('C, D, G: ',size=(20,1)),sg.InputCombo(maximo_de_cantidad,default_value=cantidad[1],size=(5,1), key='c2')],
-                    [sg.T('M, B, P: ',size=(20,1)),sg.InputCombo(maximo_de_cantidad,default_value=cantidad[2],size=(5,1), key='c3')],
-                    [sg.T('F, H, V, Y: ',size=(20,1)),sg.InputCombo(maximo_de_cantidad,default_value=cantidad[3],size=(5,1), key='c4')],
-                    [sg.T('J: ',size=(20,1)),sg.InputCombo(maximo_de_cantidad,default_value=cantidad[4],size=(5,1), key='c5')],
-                    [sg.T('K, LL, Ñ, Q, RR, W, X: ',size=(20,1)),sg.InputCombo(maximo_de_cantidad,default_value=cantidad[5],size=(5,1), key='c6')],
-                    [sg.T('Z: ',size=(20,1)),sg.InputCombo(maximo_de_cantidad,default_value=cantidad[6],size=(5,1), key='c7')],
+                    [sg.Column(fichas_cantidad)],
                     [sg.Button('Guardar Configuracion', size=(20,1))]
                     ]
-    window=sg.Window('Configuración', Configuracion,disable_minimize=True)
-    while True:
-        event,values=window.read()
-        if event in ('Dificil','Medio', 'Facil'):
-            diccionario['Nivel']=event
-            maximo=maximo_de_tiempo(event)
-            window.FindElement('time').Update(range=maximo)
-        elif event in ('Guardar Configuracion', None):
-            Actualizar_diccionario(diccionario, values)
-            break
-    window.close()
+    window=sg.Window('Configuración', Configuracion,keep_on_top=True,no_titlebar=True)
+    return window
     
 def main():
     '''Función que define el tema y que muestra el menú principal'''
@@ -742,7 +768,7 @@ def main():
          [sg.Button("Salir",size=(45,4))] 
          ]
          
-    window=sg.Window("SCRABBLEAR",menu,element_justification="center",font=("Helvetica",15),location=(0,0)).finalize()
+    window=sg.Window("SCRABBLEAR",menu,element_justification="center",font=("Helvetica",15),location=(0,0),resizable=True).finalize()
     window.maximize()
     diccionario={'Nivel':'Medio', 'Tiempo':6, 'ListaPuntos':[1,2,3,4,5,6,7], 'ListaFichas':[11,6,5,4,3,3,1] }
     while True:
@@ -753,16 +779,29 @@ def main():
             window.UnHide()
             window.maximize()
         elif event=='Configuración':
-            window.Disable()
-            Configuracion_de_juego(diccionario)
-            window.Enable()
-            window.BringToFront()
+            window2=Configuracion_de_juego(diccionario)
+            if sys.platform=="win32":
+                window.Disable()
+            while True:
+                event2,values2=window2.read()
+                if event2 in ('Dificil','Medio', 'Facil'):
+                    diccionario['Nivel']=event2
+                    maximo=maximo_de_tiempo(event2)
+                    window2.FindElement('time').Update(range=maximo)
+                elif event2 in ('Guardar Configuracion', None):
+                    Actualizar_diccionario(diccionario, values2)
+                    break
+            window2.close()
+            if sys.platform=="win32":
+                window.Enable()
+                window.BringToFront()
         elif event=='Ranking':
             Ranking()
-        elif event in (None, 'Salir'):
+        elif event == 'Salir':
             break
+        if event ==None:
+            exit()
     window.close()
 
 if __name__=='__main__':
     main()
-
