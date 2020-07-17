@@ -165,7 +165,7 @@ def retornar_tablero(nivel):
 def retornar_columna1():
     if sys.platform=="win32":
         datos={1:{"size":(11,2)},2:{"font":("Helvetica",15)},3:{"font":("Helvetica",15),"size":(25,1)}
-        ,4:{"size":(30,25),"key":"datos"},5:{"size":(11,2)}}
+        ,4:{"size":(40,22),"key":"datos","text_color":"grey6"},5:{"size":(11,2)}}
     elif sys.platform=="linux":
         datos={1:{"size":(11,2)},2:{"font":("Helvetica",15)},3:{"font":("Helvetica",15),"size":(25,1)}
         ,4:{"size":(44,25),"key":"datos"},5:{"size":(11,2)}}
@@ -206,9 +206,10 @@ def conjunto_de_letras(Dic_Letras_puntos_cantidad,estilo_col3):
             [sg.Text("K,LL,Ñ,Q,RR,W,X: ",**estilo_col3)],
             [sg.Text("Z: ",**estilo_col3)]]
     saltos=["A","C","M","F","J","K","Z"]
+    estilo_col3['size']=(3,0)
     puntos=[[sg.T(str(Dic_Letras_puntos_cantidad[i]["Puntos"]),**estilo_col3)]for i in saltos]
     cantidad=[[sg.T(str(Dic_Letras_puntos_cantidad[i]['Cantidad']),**estilo_col3)]for i in saltos]
-
+    estilo_col3['size']=(8,0)
     pun=[[sg.Text("PUNTOS", **estilo_col3)]]
     pun.extend(puntos)
     can=[[sg.Text("CANT", **estilo_col3)]]
@@ -391,7 +392,7 @@ def turno_compu(window,tablero_aux,valores_letras,vector_compu,iniciar_tiempo_pa
         for i in vector_compu:
             letras_compu[valores_letras[i]]["Cantidad"]+=1
         actualizar_vector_compu(vector_compu,[0,1,2,3,4,5,6],valores_letras,letras_compu)
-    return (contador_partida,total_palabra)
+    return (contador_partida,total_palabra,palabra)
 
 def actualizar_letras_jugador(window, letras_a_cambiar, nuevos, valores_letras, vector_jugador):
 	cant=0
@@ -474,7 +475,7 @@ def ActivarDesactivarBoton(window, pos_letras, accion, event=None):
         if i!=event:
             window.FindElement(i).Update(**aux)
 
-def Devolver_letras_a_cambiar(window, valores_letras, vector_jugador, pos_de_letras, tiempo_maximo, iniciar_tiempo_partida):
+def Devolver_letras_a_cambiar(window, valores_letras, vector_jugador, pos_de_letras, tiempo_maximo, iniciar_tiempo_partida, contador_partida):
 	'''Función en la cual el jugador elije las letras que quiere cambiar de las disponibles en sus botones'''
 	letras_a_cambiar=[]
 	window.FindElement('Verificar').Update(disabled=True)
@@ -568,7 +569,7 @@ def turno_jugador(window,tablero_aux,vector_jugador, letras_jugador, valores_let
 		elif event!=None and len(palabra)==0:
 			ActivarDesactivarBoton(window, ('Cambiar Fichas','Aceptar'),'habilitar', event=None )
 		if event=='Cambiar Fichas' and cantidad_veces_cambiado<3 and len(palabra)==0:
-			letras_a_cambiar, contador_partida =Devolver_letras_a_cambiar(window, valores_letras, vector_jugador, pos_de_letras,tiempo_maximo, iniciar_tiempo_partida)
+			letras_a_cambiar, contador_partida =Devolver_letras_a_cambiar(window, valores_letras, vector_jugador, pos_de_letras,tiempo_maximo, iniciar_tiempo_partida, contador_partida)
 			nuevos=generar_letras(len(letras_a_cambiar), letras_jugador, valores_letras)
 			for i in letras_a_cambiar:
 				letras_jugador[valores_letras[vector_jugador[i[1]]]]['Cantidad']+=1
@@ -582,43 +583,66 @@ def turno_jugador(window,tablero_aux,vector_jugador, letras_jugador, valores_let
 			break
 		if event ==None:
 			exit()
-	return (contador_partida, puntos_palabra, cantidad_veces_cambiado)
+	return (contador_partida, puntos_palabra, cantidad_veces_cambiado,''.join(palabra))
 
+def Actualizar_lista_jugadas(window,lista,puntos,palabra,id):
+    if id=='jugador':
+        if len(palabra)!=0:
+            if puntos==1 or puntos==-1:
+                string='JUGADOR INGRESO {}, VALE {} PUNTO'.format(palabra, puntos)
+            else:
+                string='JUGADOR INGRESO {}, VALE {} PUNTOS'.format(palabra, puntos)
+        else:
+            string='JUGADOR NO INGRESO NINGUNA PALABRA'
+    else:
+        if len(palabra)!=0:
+            if puntos==1 or puntos==-1:
+                string="COMPU INGRESO {}, VALE {} PUNTO ".format(palabra,puntos)
+            else:
+                string="COMPU INGRESO {}, VALE {} PUNTOS ".format(palabra,puntos)
+        else:
+            string="COMPU NO INGRESO NINGUNA PALABRA"
+    lista.append(string)
+    window.FindElement("datos").Update(values=lista)     
+            
 def jugar(window,Dic_Letras_puntos_cantidad,dic, tipo_de_palabra, tiempo_maximo):
-	'''Función que inicializa las variables del juego y se empieza a jugar'''
-	tablero_aux=crear_tablero_aux()
-	valores_letras=asociar_estructura()
-	letras_compu=Dic_Letras_puntos_cantidad.copy()
-	letras_jugador=Dic_Letras_puntos_cantidad.copy()
-	iniciar_tiempo_partida=int(round(time.time()*100))  
-	vector_jugador=generar_letras(7,letras_jugador,valores_letras)
-	vector_compu=generar_letras(7,letras_compu,valores_letras)
-	contador_partida=0
-	puntos_total_jugador=0
-	puntos_total_computadora=0
-	for i in range(0,7):
-		window.FindElement(('a',i)).Update(valores_letras[vector_jugador[i]])
-	turno=random.choice([True,False])
-	cantidad_veces_cambiado=0
-	while  contador_partida<tiempo_maximo:
-		if turno:
-			contador_partida,puntos_palabra,cantidad_veces_cambiado=turno_jugador(window, tablero_aux, vector_jugador, letras_jugador, valores_letras,dic['Nivel'],tipo_de_palabra,
-			iniciar_tiempo_partida, tiempo_maximo, cantidad_veces_cambiado,contador_partida)
-			puntos_total_jugador=puntos_total_jugador+puntos_palabra
-			window.FindElement('Puntaje Jugador').Update('Tu Puntaje: '+str(puntos_total_jugador))
-			if cantidad_veces_cambiado==5:
-				break
-			turno=False
-		else:
-			contador_partida,total_palabra=turno_compu(window,tablero_aux,valores_letras,vector_compu,iniciar_tiempo_partida,letras_compu,dic["Nivel"],tipo_de_palabra,contador_partida)
-			puntos_total_computadora=puntos_total_computadora+total_palabra
-			window.FindElement("Puntaje Computadora").Update("Puntaje Computadora: "+str(puntos_total_computadora),font=("Helvetica",15))
-			turno=True
+    '''Función que inicializa las variables del juego y se empieza a jugar'''
+    tablero_aux=crear_tablero_aux()
+    valores_letras=asociar_estructura()
+    letras_compu=Dic_Letras_puntos_cantidad.copy()
+    letras_jugador=Dic_Letras_puntos_cantidad.copy()
+    iniciar_tiempo_partida=int(round(time.time()*100))  
+    vector_jugador=generar_letras(7,letras_jugador,valores_letras)
+    vector_compu=generar_letras(7,letras_compu,valores_letras)
+    contador_partida=0
+    puntos_total_jugador=0
+    puntos_total_computadora=0
+    lista_jugadas=[]
+    for i in range(0,7):
+        window.FindElement(('a',i)).Update(valores_letras[vector_jugador[i]])
+    turno=random.choice([True,False])
+    cantidad_veces_cambiado=0
+    while  contador_partida<tiempo_maximo:
+        if turno:
+            contador_partida,puntos_palabra,cantidad_veces_cambiado,palabra=turno_jugador(window, tablero_aux, vector_jugador, letras_jugador, valores_letras,dic['Nivel'],tipo_de_palabra,
+            iniciar_tiempo_partida, tiempo_maximo, cantidad_veces_cambiado,contador_partida)
+            Actualizar_lista_jugadas(window,lista_jugadas,puntos_palabra,palabra,"Jugador")
+            puntos_total_jugador=puntos_total_jugador+puntos_palabra
+            window.FindElement('Puntaje Jugador').Update('Tu Puntaje: '+str(puntos_total_jugador))
+            if cantidad_veces_cambiado==5:
+                break
+            turno=False
+        else:
+            contador_partida,total_palabra,palabra=turno_compu(window,tablero_aux,valores_letras,vector_compu,iniciar_tiempo_partida,letras_compu,dic["Nivel"],tipo_de_palabra,contador_partida)
+            Actualizar_lista_jugadas(window,lista_jugadas,total_palabra,palabra,"Computadora")
+            puntos_total_computadora=puntos_total_computadora+total_palabra
+            window.FindElement("Puntaje Computadora").Update("Puntaje Computadora: "+str(puntos_total_computadora),font=("Helvetica",15))
+            turno=True
 
 def retornar_Columna2(dic):
 
     if sys.platform=='linux':
-        T=(3,1)
+        T=(3,2)
     else:
         T=(5,2)
     letras_compu=[[sg.Button("",key=i ,size=T) for i in range(7)]]
@@ -628,27 +652,33 @@ def retornar_Columna2(dic):
     tablero=retornar_tablero(dic['Nivel'])
     
     columna2=[  
-                [sg.Column(letras_compu, justification='center')],
+                [sg.Column(letras_compu, justification='right')],
 				[sg.Column(tablero,justification="center")],
-				[sg.Column(letras_usuario, justification='center')]]
+				[sg.Column(letras_usuario,justification="left")]]
     return columna2
     
 def retornar_Columna3(dic, Dic_Letras_puntos_cantidad, tipo_de_palabra):
     
-    estilo_col3={"justification":'center',"font":('Helvetica',10), 'relief':sg.RELIEF_RIDGE}
-    
+    estilo_col3={"justification":'left',"font":('Helvetica',12), 'relief':sg.RELIEF_RIDGE, 'size':(16,0)}
+    estilo_boton={'justification':'left', 'size':(11,0),"font":('Helvetica',12)}
     conjunto1=conjunto_de_letras(Dic_Letras_puntos_cantidad, estilo_col3)
-    
+    estilo_col3['size']=(33,0)
+    conjunto2=[
+        [sg.Text("NIVEL: "+dic["Nivel"],**estilo_col3)],
+        [sg.Text('Tipo de Palabras: '+tipo_de_palabra, **estilo_col3)],
+        [sg.Text("TIEMPO: "+str(dic["Tiempo"])[0]+" Min",**estilo_col3)]
+    ]
+    conjunto3=[
+        [sg.Button("",size=(2,1),button_color=("red","VioletRed")),sg.Text("Descuento 1",**estilo_boton),sg.Button("",size=(2,1),button_color=("red","DarkBlue")),sg.Text("Letra x2",**estilo_boton)],
+        [sg.Button("",size=(2,1),button_color=("red","pale violet red")),sg.Text("Descuento 2",**estilo_boton),sg.Button("",size=(2,1),button_color=("red","DeepSkyBlue")),sg.Text("Letra x3",**estilo_boton)],
+        [sg.Button("",size=(2,1),button_color=("red","PaleVioletRed4")),sg.Text("Descuento 3",**estilo_boton),sg.Button("",size=(2,1),button_color=("red","MediumSlateBlue")),sg.Text("Palabra x2",**estilo_boton)],
+        [sg.Button("",size=(2,1),button_color=("red","#97755c")),sg.Text("Comienzo",**estilo_boton),sg.Button("",size=(2,1),button_color=("red","SlateBlue4")),sg.Text("Palabra x3",**estilo_boton)],
+    ]
     columna3=[  [sg.Text("",size=(1,3))],[sg.Frame('', 
                 layout=[[sg.Text('CONSIDERACIONES',justification="center",auto_size_text=True,font=("Helvetica",20))],
-				[sg.Text("NIVEL:"+dic["Nivel"],**estilo_col3)],
                 [sg.Column(conjunto1, pad=(0,0))],
-                [sg.Text(tipo_de_palabra)],
-                [sg.Text("TIEMPO: "+str(dic["Tiempo"])[0]+" Min",auto_size_text=True,justification="left",font=("Helvetica",12))],
-                [sg.Button("",size=(2,1),button_color=("red","VioletRed")),sg.Text("Descuento 1",justification="left",auto_size_text=True),sg.Button("",size=(2,1),button_color=("red","DarkBlue")),sg.Text("Letra x2",justification="left",auto_size_text=True)],
-                [sg.Button("",size=(2,1),button_color=("red","pale violet red")),sg.Text("Descuento 2",justification="left",auto_size_text=True),sg.Button("",size=(2,1),button_color=("red","DeepSkyBlue")),sg.Text("Letra x3",justification="left",auto_size_text=True)],
-                [sg.Button("",size=(2,1),button_color=("red","PaleVioletRed4")),sg.Text("Descuento 3",justification="left",auto_size_text=True),sg.Button("",size=(2,1),button_color=("red","MediumSlateBlue")),sg.Text("Palabra x2",justification="left",auto_size_text=True)],
-                [sg.Button("",size=(2,1),button_color=("red","#97755c")),sg.Text("Comienzo",justification="left",size=(10,0)),sg.Button("",size=(2,1),button_color=("red","SlateBlue4")),sg.Text("Palabra x3",justification="left",auto_size_text=True)]])],
+                [sg.Column(conjunto2)],
+                [sg.Column(conjunto3)]])]
              ]
     return columna3
 
@@ -668,7 +698,7 @@ def tablero_de_juego(dic):
 			    [sg.Column(columna1),sg.Text("",size=(3,1)),sg.Column(columna2),sg.T("",size=(3,1)),sg.Column(columna3)]]
 
     window=sg.Window('ScrabbleAR', layout, return_keyboard_events=True,
-						margins=(0,0),location=(0,0),resizable=True).Finalize()
+						margins=(0,0),location=(0,0)).Finalize()
     window.maximize()
     while True:
         event,values=window.read()
