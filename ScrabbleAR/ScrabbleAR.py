@@ -5,6 +5,8 @@ import pattern.es
 import sys
 from pattern.es import parse
 import itertools
+import os
+import json
         
 def crear_tablero_aux():
     '''Función que retorna la matriz de 15x15 sin letras(todos 0) '''
@@ -520,91 +522,118 @@ def selecionar_letra(window, contador_partida,tiempo_maximo,iniciar_tiempo_parti
 	
 def turno_jugador(window,tablero_aux,vector_jugador, letras_jugador, valores_letras,nivel,tipo_de_palabra,iniciar_tiempo_partida, 
 	tiempo_maximo, cantidad_veces_cambiado,contador_partida):
-	'''Funcion que ejecuta el turno del jugador'''
-	pos_de_letras=[('a',0),('a',1),('a',2),('a',3),('a',4),('a',5),('a',6)]
-	pos_validas=None
-	palabra=[]
-	coordenada_de_letras=[]
-	letras_usadas=[]
-	movimiento=''
-	puntos_palabra=0
-	while True:
-		event, values=window.read(timeout=10)
-		contador_partida=int(round(time.time() * 100)) -iniciar_tiempo_partida
-		window.FindElement("Tiempo Partida").Update("Tiempo Partida: "+'{:02d}:{:02d}'.format((contador_partida // 100) // 60, (contador_partida// 100) % 60))
-		if event in pos_de_letras and (not event in letras_usadas):
-			ActivarDesactivarBoton(window, pos_de_letras,'deshabilitar',event)
-			evento,contador_partida=selecionar_letra(window,contador_partida,tiempo_maximo,iniciar_tiempo_partida,tablero_aux,event,pos_validas)  
-			if evento!=event:
-				if len(palabra)==1:
-					movimiento= forma_de_movimiento(coordenada_de_letras[0],evento)
-				letra=valores_letras[vector_jugador[event[1]]]
-				tablero_aux[evento[0]][evento[1]]=vector_jugador[event[1]]
-				window.FindElement(evento).Update(letra)
-				window.FindElement(event).Update('')
-				coordenada_de_letras.append(evento)
-				pos_validas=todas_las_pos(coordenada_de_letras, movimiento, len(palabra), pos_validas)
-				palabra.append(letra)
-				letras_usadas.append(event)
-			ActivarDesactivarBoton(window, pos_de_letras,'habilitar',event)
-		if event =='Verificar' and len(palabra)>=2: 
-			verificacion=Verificar_palabra(''.join(palabra).lower(), nivel, tipo_de_palabra)
-			if verificacion and tablero_aux[7][7]!=0 :
-				nuevos=generar_letras(len(letras_usadas), letras_jugador, valores_letras)
-				if len(nuevos)!=0:
-					actualizar_letras_jugador(window, letras_usadas, nuevos, valores_letras, vector_jugador)
-					puntos_palabra=calcular_puntos(coordenada_de_letras,tablero_aux,nivel,valores_letras,letras_jugador)
-				else:
-					cantidad_veces_cambiado=5
-				break
-			else:
-				tablero_aux=volver_letras_a_posicion(window, tablero_aux, coordenada_de_letras, letras_usadas, vector_jugador, valores_letras)
-				pos_validas=None
-				palabra=[]
-				letras_usadas=[]
-				coordenada_de_letras=[]
-				movimiento=''
-		if event!=None and len(palabra)==1:
-			ActivarDesactivarBoton(window, ('Cambiar Fichas','Aceptar'),'deshabilitar',event=None)
-		elif event!=None and len(palabra)==0:
-			ActivarDesactivarBoton(window, ('Cambiar Fichas','Aceptar'),'habilitar', event=None )
-		if event=='Cambiar Fichas' and cantidad_veces_cambiado<3 and len(palabra)==0:
-			letras_a_cambiar, contador_partida =Devolver_letras_a_cambiar(window, valores_letras, vector_jugador, pos_de_letras,tiempo_maximo, iniciar_tiempo_partida, contador_partida)
-			nuevos=generar_letras(len(letras_a_cambiar), letras_jugador, valores_letras)
-			for i in letras_a_cambiar:
-				letras_jugador[valores_letras[vector_jugador[i[1]]]]['Cantidad']+=1
-			actualizar_letras_jugador(window, letras_a_cambiar, nuevos, valores_letras, vector_jugador)
-			cantidad_veces_cambiado+=1
-			if cantidad_veces_cambiado==3:
-				window.FindElement('Cambiar Fichas').Update(disabled=True)
-			break
-		if contador_partida>=tiempo_maximo or event=='Terminar':
-			contador_partida=tiempo_maximo
-			break
-		if event ==None:
-			exit()
-	return (contador_partida, puntos_palabra, cantidad_veces_cambiado,''.join(palabra))
+    '''Funcion que ejecuta el turno del jugador'''
+    pos_de_letras=[('a',0),('a',1),('a',2),('a',3),('a',4),('a',5),('a',6)]
+    pos_validas=None
+    palabra=[]
+    coordenada_de_letras=[]
+    letras_usadas=[]
+    movimiento=''
+    puntos_palabra=0
+    while True:
+        event, values=window.read(timeout=10)
+        contador_partida=int(round(time.time() * 100)) -iniciar_tiempo_partida
+        window.FindElement("Tiempo Partida").Update("Tiempo Partida: "+'{:02d}:{:02d}'.format((contador_partida // 100) // 60, (contador_partida// 100) % 60))
+        if event in pos_de_letras and (not event in letras_usadas):
+            ActivarDesactivarBoton(window, pos_de_letras,'deshabilitar',event)
+            evento,contador_partida=selecionar_letra(window,contador_partida,tiempo_maximo,iniciar_tiempo_partida,tablero_aux,event,pos_validas)  
+            if evento!=event:
+                if len(palabra)==1:
+                    movimiento= forma_de_movimiento(coordenada_de_letras[0],evento)
+                letra=valores_letras[vector_jugador[event[1]]]
+                tablero_aux[evento[0]][evento[1]]=vector_jugador[event[1]]
+                window.FindElement(evento).Update(letra)
+                window.FindElement(event).Update('')
+                coordenada_de_letras.append(evento)
+                pos_validas=todas_las_pos(coordenada_de_letras, movimiento, len(palabra), pos_validas)
+                palabra.append(letra)
+                letras_usadas.append(event)
+            ActivarDesactivarBoton(window, pos_de_letras,'habilitar',event)
+        if event =='Verificar' and len(palabra)>=2: 
+            verificacion=Verificar_palabra(''.join(palabra).lower(), nivel, tipo_de_palabra)
+            if verificacion and tablero_aux[7][7]!=0 :
+                nuevos=generar_letras(len(letras_usadas), letras_jugador, valores_letras)
+                if len(nuevos)!=0:
+                    actualizar_letras_jugador(window, letras_usadas, nuevos, valores_letras, vector_jugador)
+                    puntos_palabra=calcular_puntos(coordenada_de_letras,tablero_aux,nivel,valores_letras,letras_jugador)
+                else:
+                    cantidad_veces_cambiado=5
+                break
+            else:
+                tablero_aux=volver_letras_a_posicion(window, tablero_aux, coordenada_de_letras, letras_usadas, vector_jugador, valores_letras)
+                pos_validas=None
+                palabra=[]
+                letras_usadas=[]
+                coordenada_de_letras=[]
+                movimiento=''
+        if event!=None and len(palabra)==1:
+            ActivarDesactivarBoton(window, ('Cambiar Fichas','Aceptar'),'deshabilitar',event=None)
+        elif event!=None and len(palabra)==0:
+            ActivarDesactivarBoton(window, ('Cambiar Fichas','Aceptar'),'habilitar', event=None )
+        if event=='Cambiar Fichas' and cantidad_veces_cambiado<3 and len(palabra)==0:
+            letras_a_cambiar, contador_partida =Devolver_letras_a_cambiar(window, valores_letras, vector_jugador, pos_de_letras,tiempo_maximo, iniciar_tiempo_partida, contador_partida)
+            nuevos=generar_letras(len(letras_a_cambiar), letras_jugador, valores_letras)
+            for i in letras_a_cambiar:
+                letras_jugador[valores_letras[vector_jugador[i[1]]]]['Cantidad']+=1
+            actualizar_letras_jugador(window, letras_a_cambiar, nuevos, valores_letras, vector_jugador)
+            cantidad_veces_cambiado+=1
+            if cantidad_veces_cambiado==3:
+                window.FindElement('Cambiar Fichas').Update(disabled=True)
+            break
+        if event=='Posponer':
+            tiempo_pausado=int(round(time.time() * 100))
+            confirmar=sg.PopupYesNo("Esta seguro que desea posponer la partida",no_titlebar=True)
+            if confirmar=='Yes':
+                break
+            iniciar_tiempo_partida=iniciar_tiempo_partida+int(round(time.time() * 100))-tiempo_pausado
+        if contador_partida>=tiempo_maximo or event=='Terminar':
+            break
+        if event ==None:
+            exit()
+    return (contador_partida, puntos_palabra, cantidad_veces_cambiado,''.join(palabra), event)
 
 def Actualizar_lista_jugadas(window,lista,puntos,palabra,id):
-    if id=='jugador':
-        if len(palabra)!=0:
-            if puntos==1 or puntos==-1:
-                string='JUGADOR INGRESO {}, VALE {} PUNTO'.format(palabra, puntos)
-            else:
-                string='JUGADOR INGRESO {}, VALE {} PUNTOS'.format(palabra, puntos)
-        else:
-            string='JUGADOR NO INGRESO NINGUNA PALABRA'
+	if id=='Jugador':
+		if len(palabra)!=0:
+			if puntos==1 or puntos==-1:
+				string='JUGADOR INGRESO {}, VALE {} PUNTO'.format(palabra, puntos)
+			else:
+				string='JUGADOR INGRESO {}, VALE {} PUNTOS'.format(palabra, puntos)
+		else:
+			string='JUGADOR NO INGRESO NINGUNA PALABRA'
+	else:
+		if len(palabra)!=0:
+			if puntos==1 or puntos==-1:
+				string="COMPU INGRESO {}, VALE {} PUNTO ".format(palabra,puntos)
+			else:
+				string="COMPU INGRESO {}, VALE {} PUNTOS ".format(palabra,puntos)
+		else:
+			string="COMPU NO INGRESO NINGUNA PALABRA"
+	lista.append(string)
+	window.FindElement("datos").Update(values=lista)
+
+def armar_diccionario_ordenado(datos,nivel):
+    lista_ordenada=sorted(datos[nivel].items(),key=lambda valor:valor[1]["Puntaje"],reverse=True)
+    diccionario={}
+    for i in lista_ordenada:
+        diccionario.setdefault(i[0],i[1])
+    return diccionario 
+
+def guardar_resultado(puntos_total_jugador,contador_partida,nivel,nombre):
+    if os.path.isfile("ranking_por_nivel.json"):
+        with open("ranking_por_nivel.json","r")as archivo_ranking:
+            datos=json.load(archivo_ranking)
+            archivo_ranking.close()
     else:
-        if len(palabra)!=0:
-            if puntos==1 or puntos==-1:
-                string="COMPU INGRESO {}, VALE {} PUNTO ".format(palabra,puntos)
-            else:
-                string="COMPU INGRESO {}, VALE {} PUNTOS ".format(palabra,puntos)
-        else:
-            string="COMPU NO INGRESO NINGUNA PALABRA"
-    lista.append(string)
-    window.FindElement("datos").Update(values=lista)     
-            
+        datos={"Facil":{},"Medio":{},"Dificil":{}}
+    archivo_ranking=open("ranking_por_nivel.json","w")
+    estructura={"Puntaje":puntos_total_jugador,"Tiempo":"{:02d}:{:02d}".format((contador_partida // 100) // 60, (contador_partida// 100) % 60)}
+    datos[nivel].setdefault(nombre,estructura)
+    diccionario=armar_diccionario_ordenado(datos,nivel)
+    datos[nivel]=diccionario
+    json.dump(datos,archivo_ranking,indent=4)
+    archivo_ranking.close()          
+        
 def jugar(window,Dic_Letras_puntos_cantidad,dic, tipo_de_palabra, tiempo_maximo):
     '''Función que inicializa las variables del juego y se empieza a jugar'''
     tablero_aux=crear_tablero_aux()
@@ -622,9 +651,10 @@ def jugar(window,Dic_Letras_puntos_cantidad,dic, tipo_de_palabra, tiempo_maximo)
         window.FindElement(('a',i)).Update(valores_letras[vector_jugador[i]])
     turno=random.choice([True,False])
     cantidad_veces_cambiado=0
-    while  contador_partida<tiempo_maximo:
+    event=None
+    while  contador_partida<tiempo_maximo and event!='Terminar' and event!='Posponer':
         if turno:
-            contador_partida,puntos_palabra,cantidad_veces_cambiado,palabra=turno_jugador(window, tablero_aux, vector_jugador, letras_jugador, valores_letras,dic['Nivel'],tipo_de_palabra,
+            contador_partida,puntos_palabra,cantidad_veces_cambiado,palabra, event=turno_jugador(window, tablero_aux, vector_jugador, letras_jugador, valores_letras,dic['Nivel'],tipo_de_palabra,
             iniciar_tiempo_partida, tiempo_maximo, cantidad_veces_cambiado,contador_partida)
             Actualizar_lista_jugadas(window,lista_jugadas,puntos_palabra,palabra,"Jugador")
             puntos_total_jugador=puntos_total_jugador+puntos_palabra
@@ -638,6 +668,14 @@ def jugar(window,Dic_Letras_puntos_cantidad,dic, tipo_de_palabra, tiempo_maximo)
             puntos_total_computadora=puntos_total_computadora+total_palabra
             window.FindElement("Puntaje Computadora").Update("Puntaje Computadora: "+str(puntos_total_computadora),font=("Helvetica",15))
             turno=True
+    if event !='Posponer':
+        if sys.platform=="win32":
+                window.Disable()
+        while True:
+            nombre=sg.PopupGetText("Escriba su nombre",no_titlebar=True,keep_on_top=True)
+            if nombre!=None and nombre!="":
+                guardar_resultado(puntos_total_jugador,contador_partida,dic["Nivel"],nombre)
+                break
 
 def retornar_Columna2(dic):
 
@@ -696,9 +734,11 @@ def tablero_de_juego(dic):
 
     layout= [
 			    [sg.Column(columna1),sg.Text("",size=(3,1)),sg.Column(columna2),sg.T("",size=(3,1)),sg.Column(columna3)]]
-
-    window=sg.Window('ScrabbleAR', layout, return_keyboard_events=True,
-						margins=(0,0),location=(0,0)).Finalize()
+    
+    estilo= {"return_keyboard_events":True,"margins":(0,0),"location":(0,0)}
+    if sys.platform=='linux':
+        estilo['resizable']=True
+    window=sg.Window('ScrabbleAR', layout,**estilo).Finalize()
     window.maximize()
     while True:
         event,values=window.read()
@@ -786,19 +826,76 @@ def Configuracion_de_juego(diccionario):
                     ]
     window=sg.Window('Configuración', Configuracion,keep_on_top=True,no_titlebar=True)
     return window
-    
+
+def Armar_estructura():
+    estructura=[]
+    for i in range(10):
+            estructura.append([sg.T('',key='T'+str(i), size=(40,1))])
+    return estructura
+
+def Armar_string(datos):
+    String=[]
+    for clave, valor in datos.items():
+        frase='Nombre: {}, Puntos: {}, Tiempo: {}'.format(clave, valor['Puntaje'], valor['Tiempo'])
+        String.append(frase)
+    return String
+
+def Actualizar_texto(window, string):
+    cant=0
+    for i in string:
+        window.FindElement('T'+str(cant)).Update(value=i)
+        cant+=1
+
+def mostrar_ranking(window,nivel):
+    if (os.path.isfile('ranking_por_nivel.json')):
+        archivo=open('ranking_por_nivel.json','r')
+        datos=json.load(archivo)
+        if len(datos[nivel])!=0:
+            string=Armar_string(datos[nivel])
+            Actualizar_texto(window,string)
+        else:
+            frase='No se guardo ningun jugador en Nivel '+nivel
+            window.FindElement('T0').Update(value=frase)
+        archivo.close()
+    else:
+        frase='No hay ningun ranking de todos los niveles'
+        window.FindElement('T0').Update(value=frase)
+
+def Ranking():
+    estructura=Armar_estructura()
+
+    botones=[[sg.Button('Facil', size=(40,3))],
+				[sg.Button('Medio', size=(40,3))],
+				[sg.Button('Dificil', size=(40,3))],
+				[sg.Button('Salir', size=(40,3))]
+                ]
+    ranking=[	[sg.T('Ranking', justification='center', auto_size_text=True, font=('Helvetica',120) )],
+				[sg.Column(botones),sg.Column(estructura)]
+				]
+    window=sg.Window('', ranking,element_justification="center",font=("Helvetica",15),location=(0,0),resizable=True).Finalize()
+    window.maximize()
+    while True:
+        event, values=window.read()
+        if event in('Facil','Medio','Dificil'):
+            mostrar_ranking(window,event)
+        if event in(None,'Salir'):
+            break
+    window.close()
+	
 def main():
     '''Función que define el tema y que muestra el menú principal'''
     sg.theme("DarkTanBlue")
     menu=[
-         [sg.Text("SCRABBLEAR",justification="center",auto_size_text=True,font=("Helvetica",130)) ],
+         [sg.Text("SCRABBLEAR",auto_size_text=True,font=("Helvetica",130)) ],
          [sg.Button("Jugar",size=(45,4))],
          [sg.Button("Configuración",size=(45,4))],
-         [sg.Button("Ranking",size=(45,4),disabled=True)],
+         [sg.Button("Ranking",size=(45,4))],
          [sg.Button("Salir",size=(45,4))] 
          ]
-         
-    window=sg.Window("SCRABBLEAR",menu,element_justification="center",font=("Helvetica",15),location=(0,0),resizable=True).finalize()
+    estilo={'element_justification':"center",'font':("Helvetica",15),'location':(0,0)}
+    if sys.platform=='linux':
+        estilo['resizable']=True  
+    window=sg.Window("SCRABBLEAR",menu,**estilo).finalize()
     window.maximize()
     diccionario={'Nivel':'Medio', 'Tiempo':6, 'ListaPuntos':[1,2,3,4,5,6,7], 'ListaFichas':[11,6,5,4,3,3,1] }
     while True:
