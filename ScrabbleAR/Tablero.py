@@ -8,7 +8,7 @@ import JuegoTablero
 
 
 def Tablero_actualizado(window,tablero_aux,valores_letras):
-    '''Actualiza el tablerop'''
+    '''Actualiza el tablero'''
     for i in range(0,15):
         for j in range(0,15):
             if tablero_aux[i][j]!=0:
@@ -67,7 +67,7 @@ def retornar_columna1():
         datos={1:{"size":(11,2)},2:{"font":("Helvetica",15)},3:{"font":("Helvetica",15),"size":(25,1)}
         ,4:{"size":(44,25),"key":"datos"},5:{"size":(11,2)}}
     
-    columna1=[  [sg.Button('',image_size=(100,40),image_filename='Imagenes/iniciar4.png',key='Iniciar'),sg.Button("",image_size=(100,40),image_filename='Imagenes/posponer3.png',key='Posponer'),sg.Button('',image_size=(100,40),image_filename='Imagenes/terminar3.png',key='Terminar')],
+    columna1=[  [sg.Button('',image_filename="Imagenes/Iniciar.png",image_size=(100,40),key='Iniciar'),sg.Button("",image_filename="Imagenes/Posponer.png",image_size=(100,40),key='Posponer'),sg.Button('', image_filename="Imagenes/Terminar.png",image_size=(100,40),key='Terminar')],
                  [sg.Text("",size=(1,2))],
                  [sg.Frame("",
                  layout=[[sg.Text('Tiempo Partida: 00:00',key="Tiempo Partida",**datos[2])],
@@ -76,7 +76,7 @@ def retornar_columna1():
                  [sg.Text("Puntaje Computadora: 00",key="Puntaje Computadora",**datos[3])],
                  [sg.Listbox(values=[],**datos[4])]])],
                  [sg.Text("",size=(1,2))],
-                 [sg.Button('',image_size=(100,40),image_filename='Imagenes/Verificar.png',key='Verificar'),sg.Button("",image_size=(100,40),image_filename='Imagenes/Cambiar.png',key='Cambiar Fichas'),sg.Button('',image_size=(100,40),image_filename='Imagenes/Aceptar.png',key='Aceptar')]
+                 [sg.Button('',image_filename="Imagenes/Verificar.png",image_size=(100,40),key='Verificar'),sg.Button("",image_filename="Imagenes/Cambiar.png",image_size=(100,40),key='Cambiar Fichas'), sg.Button('',image_filename="Imagenes/Aceptar.png",image_size=(100,40),key='Aceptar')]
                  ]
     return columna1   
 
@@ -136,8 +136,8 @@ def retornar_Columna2(dic):
     
 def retornar_Columna3(dic, Dic_Letras_puntos_cantidad, tipo_de_palabra):
     
-    estilo_col3={"justification":'left',"font":('Helvetica',12), 'relief':sg.RELIEF_RIDGE, 'size':(16,0)}
-    estilo_boton={'justification':'left', 'size':(11,0),"font":('Helvetica',12)}
+    estilo_col3={"font":('Calibri',12), 'relief':sg.RELIEF_SOLID, 'size':(16,0)}
+    estilo_boton={'size':(11,0),"font":('Helvetica',12)}
     conjunto1=conjunto_de_letras(Dic_Letras_puntos_cantidad, estilo_col3)
     estilo_col3['size']=(33,0)
     conjunto2=[
@@ -146,17 +146,19 @@ def retornar_Columna3(dic, Dic_Letras_puntos_cantidad, tipo_de_palabra):
         [sg.Text("Tiempo de Partida: "+str(dic["Tiempo"])[0]+" Min",**estilo_col3)],
         [sg.T('Tiempo de Jugada: '+str(dic['Tiempo2'])+' Seg',**estilo_col3)]
     ]
+    estilo_col3['size']=(16,0)
     conjunto3=[
+        [sg.Text("Casillas Especiales",**estilo_col3)],
         [sg.Button("",size=(2,1),button_color=("red","VioletRed")),sg.Text("Descuento 1",**estilo_boton),sg.Button("",size=(2,1),button_color=("red","DarkBlue")),sg.Text("Letra x2",**estilo_boton)],
         [sg.Button("",size=(2,1),button_color=("red","pale violet red")),sg.Text("Descuento 2",**estilo_boton),sg.Button("",size=(2,1),button_color=("red","DeepSkyBlue")),sg.Text("Letra x3",**estilo_boton)],
         [sg.Button("",size=(2,1),button_color=("red","PaleVioletRed4")),sg.Text("Descuento 3",**estilo_boton),sg.Button("",size=(2,1),button_color=("red","MediumSlateBlue")),sg.Text("Palabra x2",**estilo_boton)],
         [sg.Button("",size=(2,1),button_color=("red","#97755c")),sg.Text("Comienzo",**estilo_boton),sg.Button("",size=(2,1),button_color=("red","SlateBlue4")),sg.Text("Palabra x3",**estilo_boton)],
     ]
-    columna3=[  [sg.Text("",size=(1,3))],[sg.Frame('', 
-                layout=[[sg.Text('CONSIDERACIONES',justification="center",auto_size_text=True,font=("Helvetica",20))],
-                [sg.Column(conjunto1, pad=(0,0))],
-                [sg.Column(conjunto2)],
-                [sg.Column(conjunto3)]])]
+    columna3=[  [sg.Text("",size=(1,3))],[sg.Frame('',background_color="#ffffff",
+                layout=[[sg.Text('CONSIDERACIONES',size=(350,1),justification="center",font=("Ravie",20),pad=(0,0))],
+                [sg.Column(conjunto1, pad=(0,1))],
+                [sg.Column(conjunto2,size=(350,120),pad=(0,1))],
+                [sg.Column(conjunto3,pad=(0,1),size=(350,150))]])]
              ]
     return columna3
 
