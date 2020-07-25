@@ -19,14 +19,14 @@ def verificar_partida_guardada():
     
 def main():
     '''Función que define el tema y que muestra el menú principal'''
-    sg.theme("Reds")
+    sg.theme('DarkTanBlue')
     menu=[
-         [sg.Text("SCRABBLEAR",auto_size_text=True,font=("Helvetica",130)) ],
-         [sg.Button("JUGAR",size=(45,4))],
-         [sg.Button("CONFIGURACIÓN",size=(45,4))],
-         [sg.Button("RANKING",size=(45,4))],
-         [sg.Button("SALIR",size=(45,4))] 
-         ]
+		[sg.Text("ScrabbleAR",auto_size_text=True,font=("Ravie",110)) ],
+		[sg.Button("",image_size=(500,80),image_filename='Imagenes/jugar.png',key='Jugar')],
+		[sg.Button("",image_size=(500,80),image_filename='Imagenes/configuracion11.png',key='Configuración')],
+		[sg.Button("",image_size=(500,80),image_filename='Imagenes/Ranking.png',key='Ranking')],
+		[sg.Button("",image_size=(500,80),image_filename='Imagenes/Salir_m.png',key='Salir')] 
+		]
     estilo={'element_justification':"center",'font':("Helvetica",15),'location':(0,0)}
     if sys.platform=='linux':
         estilo['resizable']=True  

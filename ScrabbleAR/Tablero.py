@@ -67,7 +67,7 @@ def retornar_columna1():
         datos={1:{"size":(11,2)},2:{"font":("Helvetica",15)},3:{"font":("Helvetica",15),"size":(25,1)}
         ,4:{"size":(44,25),"key":"datos"},5:{"size":(11,2)}}
     
-    columna1=[  [sg.Button('Iniciar',**datos[1]),sg.Button("Posponer",**datos[1]),sg.Button('Terminar', **datos[1])],
+    columna1=[  [sg.Button('',image_size=(100,40),image_filename='Imagenes/iniciar4.png',key='Iniciar'),sg.Button("",image_size=(100,40),image_filename='Imagenes/posponer3.png',key='Posponer'),sg.Button('',image_size=(100,40),image_filename='Imagenes/terminar3.png',key='Terminar')],
                  [sg.Text("",size=(1,2))],
                  [sg.Frame("",
                  layout=[[sg.Text('Tiempo Partida: 00:00',key="Tiempo Partida",**datos[2])],
@@ -76,7 +76,7 @@ def retornar_columna1():
                  [sg.Text("Puntaje Computadora: 00",key="Puntaje Computadora",**datos[3])],
                  [sg.Listbox(values=[],**datos[4])]])],
                  [sg.Text("",size=(1,2))],
-                 [sg.Button('Verificar',**datos[5]),sg.Button("Cambiar Fichas",**datos[5]), sg.Button('Aceptar',**datos[5])]
+                 [sg.Button('',image_size=(100,40),image_filename='Imagenes/Verificar.png',key='Verificar'),sg.Button("",image_size=(100,40),image_filename='Imagenes/Cambiar.png',key='Cambiar Fichas'),sg.Button('',image_size=(100,40),image_filename='Imagenes/Aceptar.png',key='Aceptar')]
                  ]
     return columna1   
 

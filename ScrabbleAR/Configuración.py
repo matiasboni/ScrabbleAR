@@ -10,12 +10,12 @@ def maximo_de_tiempo(nivel):
         return (1,10)
 
 def Actualizar_diccionario(diccionario, values):
-    '''Función que actualiza la estructura del diccionario segun la configuración realizada del juego'''
-    if values['time']!=None:
-        diccionario['Tiempo2']=values['time2']
-        diccionario['Tiempo']=values['time']
-        diccionario['ListaPuntos']=[values['p1'],values['p2'],values['p3'],values['p4'],values['p5'],values['p6'],values['p7']]
-        diccionario['ListaFichas']=[values['c1'],values['c2'],values['c3'],values['c4'],values['c5'],values['c6'],values['c7']]
+	'''Función que actualiza la estructura del diccionario segun la configuración realizada del juego'''
+	print(values)
+	if values['time']!=None:
+		diccionario['Tiempo2']=values['time2']
+		diccionario['Tiempo']=values['time']
+		
 
 def Actualizar_Configuracion(diccionario):
     '''Función que retorna y actualiza los valores por defecto de la pantalla configuración'''
@@ -29,22 +29,31 @@ def Actualizar_Configuracion(diccionario):
     cantidad=diccionario['ListaFichas']    
     return (puntos, cantidad,lista)    
 
-def conjunto_letras_confi(maximo, default, clave): 
-    letras=[[sg.T('A, E, O, S, I, U, N, L, R, T: ', size=(20,1)),sg.InputCombo(maximo,default_value=default[0],size=(5,1), key=clave+'1')],
-            [sg.T('C, D, G: ',size=(20,1)),sg.InputCombo(maximo,default_value=default[1],size=(5,1), key=clave+'2')],
-            [sg.T('M, B, P: ',size=(20,1)),sg.InputCombo(maximo,default_value=default[2],size=(5,1), key=clave+'3')],
-            [sg.T('F, H, V, Y: ',size=(20,1)),sg.InputCombo(maximo,default_value=default[3],size=(5,1), key=clave+'4')],
-            [sg.T('J: ',size=(20,1)),sg.InputCombo(maximo,default_value=default[4],size=(5,1), key=clave+'5')],
-            [sg.T('K, LL, Ñ, Q, RR, W, X: ',size=(20,1)),sg.InputCombo(maximo,default_value=default[5],size=(5,1), key=clave+"6")],
-            [sg.T('Z: ',size=(20,1)),sg.InputCombo(maximo,default_value=default[6],size=(5,1), key=clave+"7")]]
-    return letras
+def conjunto_letras_confi(defaultP,defaultC):
+	dato={'size':(20,1),'font':('Calibri', 15)} 
+	letras=[[sg.T('LETRAS',size=(15,1), font=('Calibri', 20), background_color="LightBlue",text_color='#0F0F4C',justification='center')],
+			[sg.T('A, E, O, S, I, U, N, L, R, T:',**dato)],
+			[sg.T('C, D, G: ',**dato)],
+			[sg.T('M, B, P: ',**dato)],
+			[sg.T('F, H, V, Y: ',**dato)],
+			[sg.T('J: ',**dato)],
+			[sg.T('K, LL, Ñ, Q, RR, W, X:',**dato)],
+			[sg.T('Z: ',**dato)]]
+	
+	Puntos=[[sg.Button('◄',key='P0'+str(i),pad=(3,5)),sg.Button(str(defaultP[i]),key='P1'+str(i),size=(4,1),pad=(6,5)),sg.Button('►',key='P2'+str(i),pad=(6,5))]for i in range(7)]
+	Cantidad=[[sg.Button('◄',key='C0'+str(i),pad=(3,5)),sg.Button(str(defaultC[i]),key='C1'+str(i),size=(4,1),pad=(6,5)),sg.Button('►',key='C2'+str(i),pad=(6,5))]for i in range(7)]
+	pun=[[sg.T('PUNTOS',font=('Calibri',20), background_color="LightBlue",text_color='#0F0F4C',auto_size_text=True)]]
+	can=[[sg.T('CANTIDAD',font=('Calibri',20), background_color="LightBlue",text_color='#0F0F4C',auto_size_text=True)]]
+	pun.extend(Puntos)
+	can.extend(Cantidad)
+	return [[sg.Column(letras),sg.VerticalSeparator(),sg.Column(pun,key='puntos_letras'),sg.VerticalSeparator(),sg.Column(can)]]
     
 def Retornar_nivel(lista):
-    dato={'font':('Helvetica'), 'enable_events':True}
-    nivel=[ [sg.T('')],
-            [sg.Radio('Difícil',1, size=(20,1),default=lista[0],key='Dificil',**dato)],
-            [sg.Radio('Medio',1, size=(20,1),default=lista[1],**dato)],
-            [sg.Radio('Fácil',1, size=(20,1),default=lista[2],key='Facil',**dato)]]
+    dato={'size':(15,1),'font':('Helvetica',20), 'enable_events':True}
+    nivel=[ 
+            [sg.Radio('Difícil',1,default=lista[0],key='Dificil',**dato)],
+            [sg.Radio('Medio',1,default=lista[1],key='Medio',**dato)],
+            [sg.Radio('Fácil',1,default=lista[2],key='Facil',**dato)]]
     return nivel
     
 def retornar_tiempo(dic):
@@ -53,38 +62,74 @@ def retornar_tiempo(dic):
             [sg.T('Tiempo de Jugada (En seg)', justification='center')],
             [sg.Slider(range=(1,60),default_value=dic['Tiempo2'],key='time2',orientation='h')]]
     return tiempo
-    
+
+def Actualizar_texto(window,clave, reaccion):
+	if reaccion =='descontar':
+		dato=int(window.FindElement(clave).GetText())
+		print(dato)
+		if dato>=2:
+			dato-=1
+			window.FindElement(clave).Update(str(dato))
+	elif reaccion=='incrementar':
+		dato=int(window.FindElement(clave).GetText())
+		print (dato)
+		if dato<=10:
+			dato+=1
+			window.FindElement(clave).Update(str(dato))
+
+def generar_claves():
+	dic_claves={'P0':[],'P1':[],'P2':[],'C0':[],'C1':[],'C2':[]}
+	for i in range(3):
+		for j in range(7):
+			dic_claves['P'+str(i)].append('P'+str(i)+str(j))
+			dic_claves['C'+str(i)].append('C'+str(i)+str(j))
+	print(dic_claves)
+	return dic_claves
+
 def Configuracion_de_juego(diccionario):
-    '''Función que define y muestra la pantalla de configuración para que
-    se realizen los cambios por parte del jugador'''
-    maximo_de_cantidad=[1,2,3,4,5,6,7,8,9,10,11]
-    puntos, cantidad, lista=Actualizar_Configuracion(diccionario)
-    fichas_puntos=conjunto_letras_confi(maximo_de_cantidad,puntos,"p")
-    fichas_cantidad=conjunto_letras_confi(maximo_de_cantidad, cantidad,'c')
-    nivel=Retornar_nivel(lista)
+	'''Función que define y muestra la pantalla de configuración para que
+	se realizen los cambios por parte del jugador'''
+	puntos, cantidad, lista=Actualizar_Configuracion(diccionario)
+	fichas=conjunto_letras_confi(puntos,cantidad)
+	nivel=Retornar_nivel(lista)
     
-    tiempo=retornar_tiempo(diccionario)
+	tiempo=retornar_tiempo(diccionario)
 
-    estilo={'size':(30,1) , 'justification':'center', 'font':('Helvetica', 20), 'relief':sg.RELIEF_RIDGE}
+	estilo={'size':(32,1) , 'justification':'center', 'font':('Helvetica', 20), 'relief':sg.RELIEF_RIDGE}
 
-    Configuracion=[ [sg.T('CONFIGURACIÓN',**estilo)],
-                    [sg.Text('NIVEL',**estilo)],
-                    [sg.Column(nivel), sg.Column(tiempo)],
-                    [sg.Text('Puntaje de las Fichas',**estilo)],
-                    [sg.Column(fichas_puntos)],
-                    [sg.T('Cantidad de Fichas por Letra', **estilo)],
-                    [sg.Column(fichas_cantidad)],
-                    [sg.Button('Guardar Configuracion', size=(20,1))]
-                    ]
-    window=sg.Window('Configuración', Configuracion,keep_on_top=True,no_titlebar=True)
-    while True:
-        event,values=window.read()
-        if event in ('Dificil','Medio', 'Facil'):
-            diccionario['Nivel']=event
-            maximo=maximo_de_tiempo(event)
-            window.FindElement('time').Update(range=maximo)
-        elif event in ('Guardar Configuracion', None):     
-            Actualizar_diccionario(diccionario, values)
-            break
-    window.close()
+	Configuracion=[ [sg.T('CONFIGURACIÓN',**estilo, background_color="LightBlue",text_color='#0F0F4C')],
+					[sg.T('')],
+					[sg.Text('NIVEL',**estilo, background_color="LightBlue",text_color='#0F0F4C')],
+					[sg.Column(nivel), sg.Column(tiempo)],
+					[sg.Frame('',layout=fichas)],
+					[sg.Button('Guardar Configuracion', size=(20,2))]
+					]
+					
+	Configuracion_conFrame=[[sg.Frame('',layout=Configuracion)]]
+	window=sg.Window('Configuración', Configuracion_conFrame,keep_on_top=True,no_titlebar=True)
+	Claves=generar_claves()
+	while True:
+		event,values=window.read()
+		print(event,values)
+		if event in ('Dificil','Medio', 'Facil'):
+			diccionario['Nivel']=event
+			maximo=maximo_de_tiempo(event)
+			window.FindElement('time').Update(range=maximo)
+		elif event in ('Guardar Configuracion', None):     
+			Actualizar_diccionario(diccionario, values)
+			break
+		if event in Claves['P0']:
+			pos=Claves['P0'].index(event)
+			Actualizar_texto(window,Claves['P1'][pos],'descontar')
+		if event in Claves['P2']:
+			pos=Claves['P2'].index(event)
+			Actualizar_texto(window,Claves['P1'][pos],'incrementar')
+		if event in Claves['C0']:
+			pos=Claves['C0'].index(event)
+			Actualizar_texto(window,Claves['C1'][pos],'descontar')
+		if event in Claves['C2']:
+			pos=Claves['C2'].index(event)
+			Actualizar_texto(window,Claves['C1'][pos],'incrementar')
+	window.close()
+generar_claves()
 
