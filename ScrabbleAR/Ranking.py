@@ -13,16 +13,16 @@ def Armar_estructura():
 def Armar_string(datos):
     String=[]
     for clave, valor in datos.items():
-        frase='Nombre: {}, Puntos: {}, Tiempo: {}'.format(clave, valor['Puntaje'], valor['Tiempo'])
+        frase='Nombre: {}, Puntos: {}, Tiempo: {}, Fecha: {},Hora: {}'.format(clave, valor['Puntaje'], valor['Tiempo'],valor["Fecha"],valor["Hora"])
         String.append(frase)
     return String
 
 def Actualizar_texto(window, string, cant):
-    for i in range(cant):
-        if string!=None:
+    for i in range(10):
+        if string!=None and i<cant:
             window.FindElement('T'+str(i)).Update(value=string[i])
         else:
-            window.FindElement('T'+str(i)).Update(value='')
+            window.FindElement('T'+str(i)).Update(value="")
 
 def mostrar_ranking(window,nivel, cant):
     string=None
@@ -47,10 +47,10 @@ def mostrar_ranking(window,nivel, cant):
 def ranking_por_nivel():
     estructura=Armar_estructura()
 
-    botones=[[sg.Button('',image_filename="Imagenes/Fácil.png",key="Facil")],
-				[sg.Button('', image_filename="Imagenes/Medio.png",key="Medio")],
-				[sg.Button('', image_filename="Imagenes/Difícil.png",key="Dificil")],
-				[sg.Button('', image_filename="Imagenes/Salir.png", key='Salir')]
+    botones=[[sg.Button('',image_filename="Imagenes/facil.png",key="Facil")],
+				[sg.Button('', image_filename="Imagenes/medio.png",key="Medio")],
+				[sg.Button('', image_filename="Imagenes/dificil.png",key="Dificil")],
+				[sg.Button('', image_filename="Imagenes/salir.png", key='Salir')]
                 ]
     ranking=[	[sg.Text('Ranking',font=("Ravie",110),text_color="#ffffff",justification='center' )],
 				[sg.Column(botones),sg.Column(estructura)]

@@ -22,10 +22,10 @@ def main():
     sg.theme('DarkTanBlue')
     menu=[
 		[sg.Text("ScrabbleAR",auto_size_text=True,font=("Ravie",110)) ],
-		[sg.Button("",image_filename='Imagenes/Jugar.png',key='Jugar')],
-		[sg.Button("",image_filename='Imagenes/Configuración.png',key='Configuración')],
-		[sg.Button("",image_filename='Imagenes/Ranking.png',key='Ranking')],
-		[sg.Button("",image_filename='Imagenes/Salir_m.png',key='Salir')] 
+		[sg.Button("",image_filename='Imagenes/jugar.png',key='Jugar')],
+		[sg.Button("",image_filename='Imagenes/configuracion.png',key='Configuración')],
+		[sg.Button("",image_filename='Imagenes/ranking.png',key='Ranking')],
+		[sg.Button("",image_filename='Imagenes/salir_m.png',key='Salir')] 
 		]
     estilo={'element_justification':"center",'font':("Helvetica",15),'location':(0,0)}
     if sys.platform=='linux':
