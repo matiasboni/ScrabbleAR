@@ -11,7 +11,6 @@ def maximo_de_tiempo(nivel):
 
 def Actualizar_diccionario(diccionario, values):
 	'''Función que actualiza la estructura del diccionario segun la configuración realizada del juego'''
-	print(values)
 	if values['time']!=None:
 		diccionario['Tiempo2']=values['time2']
 		diccionario['Tiempo']=values['time']

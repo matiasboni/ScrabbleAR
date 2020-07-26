@@ -61,22 +61,22 @@ def retornar_tablero(nivel):
 
 def retornar_columna1():
     if sys.platform=="win32":
-        datos={1:{"size":(11,2)},2:{"font":("Helvetica",15)},3:{"font":("Helvetica",15),"size":(25,1)}
-        ,4:{"size":(40,22),"key":"datos","text_color":"grey6"},5:{"size":(11,2)}}
+        datos={1:{"font":("Calibri",15)},2:{"font":("Calibri",15),"size":(25,1)}
+        ,3:{"size":(40,22),"key":"datos","text_color":"grey6"}}
     elif sys.platform=="linux":
-        datos={1:{"size":(11,2)},2:{"font":("Helvetica",15)},3:{"font":("Helvetica",15),"size":(25,1)}
-        ,4:{"size":(44,25),"key":"datos"},5:{"size":(11,2)}}
+        datos={1:{"font":("Calibri",13)},2:{"font":("Calibri",13),"size":(25,1)}
+        ,3:{"size":(35,25),"key":"datos"}}
     
-    columna1=[  [sg.Button('',image_filename="Imagenes/Iniciar.png",image_size=(100,40),key='Iniciar'),sg.Button("",image_filename="Imagenes/Posponer.png",image_size=(100,40),key='Posponer'),sg.Button('', image_filename="Imagenes/Terminar.png",image_size=(100,40),key='Terminar')],
+    columna1=[  [sg.Button('',image_filename="Imagenes/Iniciar.png",key='Iniciar'),sg.Button("",image_filename="Imagenes/Posponer.png",key='Posponer'),sg.Button('', image_filename="Imagenes/Terminar.png",key='Terminar')],
                  [sg.Text("",size=(1,2))],
                  [sg.Frame("",
-                 layout=[[sg.Text('Tiempo Partida: 00:00',key="Tiempo Partida",**datos[2])],
-                 [sg.Text("Tiempo Jugada: 00:00",key="Tiempo Jugada",**datos[2])],
-                 [sg.Text("Tu Puntaje: 00",key="Puntaje Jugador",**datos[3])],
-                 [sg.Text("Puntaje Computadora: 00",key="Puntaje Computadora",**datos[3])],
-                 [sg.Listbox(values=[],**datos[4])]])],
+                 layout=[[sg.Text('Tiempo Partida: 00:00',key="Tiempo Partida",**datos[1])],
+                 [sg.Text("Tiempo Jugada: 00:00",key="Tiempo Jugada",**datos[1])],
+                 [sg.Text("Tu Puntaje: 00",key="Puntaje Jugador",**datos[2])],
+                 [sg.Text("Puntaje Computadora: 00",key="Puntaje Computadora",**datos[2])],
+                 [sg.Listbox(values=[],**datos[3])]])],
                  [sg.Text("",size=(1,2))],
-                 [sg.Button('',image_filename="Imagenes/Verificar.png",image_size=(100,40),key='Verificar'),sg.Button("",image_filename="Imagenes/Cambiar.png",image_size=(100,40),key='Cambiar Fichas'), sg.Button('',image_filename="Imagenes/Aceptar.png",image_size=(100,40),key='Aceptar')]
+                 [sg.Button('',image_filename="Imagenes/Verificar.png",key='Verificar'),sg.Button("",image_filename="Imagenes/Cambiar.png",key='Cambiar Fichas'), sg.Button('',image_filename="Imagenes/Aceptar.png",key='Aceptar')]
                  ]
     return columna1   
 
@@ -115,6 +115,11 @@ def conjunto_de_letras(Dic_Letras_puntos_cantidad,estilo_col3):
                 [sg.Column(texto),sg.Column(pun),sg.Column(can)]]
     return conjunto
 
+def retornar_pad(num,tipo):
+    if (num==0 and tipo=="u") or (num==6 and tipo=="c") :
+        return (0,0)
+    else:
+        return (3,0)
 
 def retornar_Columna2(dic):
 
@@ -122,9 +127,9 @@ def retornar_Columna2(dic):
         T=(3,2)
     else:
         T=(5,2)
-    letras_compu=[[sg.Button("",key=i ,size=T) for i in range(7)]]
+    letras_compu=[[sg.Button("",key=i ,size=T,pad=retornar_pad(i,'c') if (sys.platform=="linux") else None) for i in range(7)]]
 
-    letras_usuario=[[sg.Button("",key=('a',a), size=T )for a in range(7)]]
+    letras_usuario=[[sg.Button("",key=('a',a), size=T ,pad=retornar_pad(a,'u') if (sys.platform=="linux") else None)for a in range(7)]]
     
     tablero=retornar_tablero(dic['Nivel'])
     
@@ -156,9 +161,9 @@ def retornar_Columna3(dic, Dic_Letras_puntos_cantidad, tipo_de_palabra):
     ]
     columna3=[  [sg.Text("",size=(1,3))],[sg.Frame('',background_color="#ffffff",
                 layout=[[sg.Text('CONSIDERACIONES',size=(350,1),justification="center",font=("Ravie",20),pad=(0,0))],
-                [sg.Column(conjunto1, pad=(0,1))],
-                [sg.Column(conjunto2,size=(350,120),pad=(0,1))],
-                [sg.Column(conjunto3,pad=(0,1),size=(350,150))]])]
+                [sg.Column(conjunto1, pad=(0,1),size=(350,240)if (sys.platform=="win32")else (400,240))],
+                [sg.Column(conjunto2,pad=(0,1),size=(350,120)if (sys.platform=='win32')else (400,120))],
+                [sg.Column(conjunto3,pad=(0,1),size=(350,150)if (sys.platform=="win32") else (400,167))]])]
              ]
     return columna3
 
@@ -176,9 +181,10 @@ def tablero_de_juego(dic, estructura):
     columna2=retornar_Columna2(dic)
 
     columna3=retornar_Columna3(dic, Dic_Letras_puntos_cantidad,tipo_de_palabra)
-
-    layout= [
-			    [sg.Column(columna1),sg.Text("",size=(3,1)),sg.Column(columna2),sg.T("",size=(3,1)),sg.Column(columna3)]]
+    if sys.platform!="linux":
+        layout= layout= [[sg.Column(columna1),sg.Text("",size=(3,1)),sg.Column(columna2),sg.T("",size=(3,1)),sg.Column(columna3)]]
+    else:
+        layout= [[sg.Column(columna1),sg.Column(columna2),sg.Column(columna3)]]
     
     estilo= {"return_keyboard_events":True,"margins":(0,0),"location":(0,0)}
     if sys.platform=='linux':
