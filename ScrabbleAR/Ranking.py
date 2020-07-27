@@ -39,23 +39,27 @@ def mostrar_ranking(window,nivel, cant):
             window.FindElement('T0').Update(value=frase)
         archivo.close()
     else:
-        frase='No hay ningun ranking de todos los niveles'
+        frase='No se guardo ningun jugador en nivel'+nivel
         Actualizar_texto(window,string,cant)
         window.FindElement('T0').Update(value=frase)
     return cant
 
-def ranking_por_nivel():
-    estructura=Armar_estructura()
-
+def retornar_botones():
     botones=[[sg.Button('',image_filename="Imagenes/facil.png",key="Facil")],
 				[sg.Button('', image_filename="Imagenes/medio.png",key="Medio")],
 				[sg.Button('', image_filename="Imagenes/dificil.png",key="Dificil")],
 				[sg.Button('', image_filename="Imagenes/salir.png", key='Salir')]
                 ]
+    return botones
+    
+def ranking_por_nivel():
+    estructura=Armar_estructura()
+    botones=retornar_botones()
+    
     ranking=[	[sg.Text('Ranking',font=("Ravie",110),text_color="#ffffff",justification='center' )],
 				[sg.Column(botones),sg.Column(estructura)]
 				]
-    estilo={"element_justification":"center","font":("Helvetica",15),"location":(0,0)}
+    estilo={"element_justification":"center"}
     if sys.platform=="linux":
         estilo["resizable"]=True
 
@@ -66,6 +70,8 @@ def ranking_por_nivel():
         event, values=window.read()
         if event in('Facil','Medio','Dificil'):
             cant=mostrar_ranking(window,event, cant)
-        if event in(None,'Salir'):
+        elif event=='Salir':
             break
+        elif event==None:
+            exit()
     window.close()

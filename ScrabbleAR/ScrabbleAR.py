@@ -7,6 +7,7 @@ import Tablero
 import Configuración
 
 def verificar_partida_guardada():
+    '''Retorna una estructura que contiene la información de la partida guardada'''
     estructura=None
     if os.path.isfile('partida_guardada.pickle'):
         verificar=sg.PopupYesNo("Hay una partida guardada,¿desea retomarla?",no_titlebar=True)
@@ -21,13 +22,13 @@ def main():
     '''Función que define el tema y que muestra el menú principal'''
     sg.theme('DarkTanBlue')
     menu=[
-		[sg.Text("ScrabbleAR",auto_size_text=True,font=("Ravie",110)) ],
+		[sg.Text("ScrabbleAR",font=("Ravie",110)) ],
 		[sg.Button("",image_filename='Imagenes/jugar.png',key='Jugar')],
 		[sg.Button("",image_filename='Imagenes/configuracion.png',key='Configuración')],
 		[sg.Button("",image_filename='Imagenes/ranking.png',key='Ranking')],
 		[sg.Button("",image_filename='Imagenes/salir_m.png',key='Salir')] 
 		]
-    estilo={'element_justification':"center",'font':("Helvetica",15),'location':(0,0)}
+    estilo={'element_justification':"center"}
     if sys.platform=='linux':
         estilo['resizable']=True  
     window=sg.Window("SCRABBLEAR",menu,**estilo).finalize()
@@ -49,7 +50,10 @@ def main():
                 window.Enable()
                 window.BringToFront()
         elif event=='Ranking':
+            window.Hide()
             Ranking.ranking_por_nivel()
+            window.UnHide()
+            window.maximize()
         elif event == 'Salir':
             break
         if event ==None:

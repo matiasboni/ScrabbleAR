@@ -7,12 +7,23 @@ import JuegoTablero
 
 
 
-def Tablero_actualizado(window,tablero_aux,valores_letras):
+def Tablero_actualizado(window,tablero_aux,valores_letras,nivel):
     '''Actualiza el tablero'''
     for i in range(0,15):
         for j in range(0,15):
             if tablero_aux[i][j]!=0:
-                window.FindElement((i,j)).Update(text=valores_letras[tablero_aux[i][j]])
+                window.FindElement((i,j)).Update(image_filename=Coordenadas.asignar_color((i,j),nivel,valores_letras[tablero_aux[i][j]]))
+
+def actualizar_ventana(window,estructura):
+    JuegoTablero.Actualizar_lista_jugadas(window,estructura["lista_jugadas"])
+    Tablero_actualizado(window,estructura["tablero_aux"],JuegoTablero.asociar_estructura(),dic["Nivel"])
+    contador_partida=estructura["contador_partida"]
+    contador_jugada=estructura["contador_jugada"]
+    window.FindElement("Tiempo Partida").Update("Tiempo Partida: "+'{:02d}:{:02d}'.format((contador_partida // 100) // 60, (contador_partida// 100) % 60))
+    window.FindElement("Tiempo Jugada").Update("Tiempo Jugada: "+'{:02d}:{:02d}'.format((contador_jugada // 100) // 60, (contador_jugada// 100) % 60))
+    window.FindElement('Puntaje Jugador').Update('Tu Puntaje: '+str(estructura['puntos_total_jugador']))
+    window.FindElement("Puntaje Computadora").Update("Puntaje Computadora: "+str(estructura['puntos_total_computadora']),font=("Helvetica",15))
+
 
 def Letras_Cantidad_y_Puntos(puntos, cantidad):
     ''''''
@@ -26,38 +37,18 @@ def Letras_Cantidad_y_Puntos(puntos, cantidad):
     return dic
 
 
-def asignar_color(coordenadas,nivel):
-    '''Función que recibe como parámetro las coordenadas de una casilla y retorna el color
-    que le corresponde a esa casilla'''
-    dic=Coordenadas.retornar_coordenadas(nivel)   
-    if coordenadas in dic["letra2"]:
-        return ("black","DarkBlue")
-    elif coordenadas in dic["letra3"]:
-        return ("black","DeepSkyBlue")
-    elif coordenadas in dic["palabra2"]:
-        return ("black","MediumSlateBlue")
-    elif coordenadas in dic["palabra3"]:
-        return ("black", "SlateBlue4")
-    elif coordenadas in dic["descuen1"]:
-        return ("black","VioletRed")
-    elif coordenadas in dic["descuen2"]:
-        return ("black","pale violet red")
-    elif coordenadas in dic['descuen3']:
-        return ("black","PaleVioletRed4")
-    elif coordenadas==(7,7):
-        return ("black","#97755c")
+def tipo_de_palabras(nivel):
+    '''Función que recibe como parámetro el nivel y retorna los tipos de palabras validas'''
+    if nivel=='Facil':
+        return 'Todas Las Palabras'
+    elif nivel=='Medio':
+        return 'Verbos y Adjetivos'
     else:
-        return  ("black","LightBlue")
+        lista=['Adjetivos', 'Verbos']
+        palabra=random.randrange(len(lista))
+        return lista[palabra]
 
-def retornar_tablero(nivel):
-    '''Función que recibe como parametro el nivel y retorna el tablero que le corresponde'''  
-    if sys.platform=="linux":
-        datos={"size":(2,2),"pad":(0,0),"border_width":1}
-    else:    
-        datos={"size":(4,2),"pad":(0,0),"border_width":1}
-    tablero=[
-            [sg.Button('',key=(i,j),button_color=asignar_color((i,j),nivel), **datos,) for j in range(15)]for i in range(15)]
-    return tablero
+
 
 def retornar_columna1():
     if sys.platform=="win32":
@@ -65,7 +56,7 @@ def retornar_columna1():
         ,3:{"size":(40,22),"key":"datos","text_color":"grey6"}}
     elif sys.platform=="linux":
         datos={1:{"font":("Calibri",13)},2:{"font":("Calibri",13),"size":(25,1)}
-        ,3:{"size":(35,25),"key":"datos"}}
+        ,3:{"size":(35,25),"key":"datos","text_color":"grey6"}}
     
     columna1=[  [sg.Button('',image_filename="Imagenes/iniciar.png",key='Iniciar'),sg.Button("",image_filename="Imagenes/posponer.png",key='Posponer'),sg.Button('', image_filename="Imagenes/terminar.png",key='Terminar')],
                  [sg.Text("",size=(1,2))],
@@ -80,16 +71,33 @@ def retornar_columna1():
                  ]
     return columna1   
 
-def tipo_de_palabras(nivel):
-    '''Función que recibe como parámetro el nivel y retorna los tipos de palabras validas'''
-    if nivel=='Facil':
-        return 'Todas Las Palabras'
-    elif nivel=='Medio':
-        return 'Verbos y Adjetivos'
+def retornar_tablero(nivel):
+    '''Función que recibe como parametro el nivel y retorna el tablero que le corresponde'''  
+    datos={"pad":(0,0),"border_width":1}
+    tablero=[
+            [sg.Button('',key=(i,j),image_filename=Coordenadas.asignar_color((i,j),nivel,''), **datos,) for j in range(15)]for i in range(15)]
+    return tablero
+
+
+def retornar_pad(num,tipo):
+    if (num==0 and tipo=="u") or (num==6 and tipo=="c") :
+        return (0,0)
     else:
-        lista=['Adjetivos', 'Verbos']
-        palabra=random.randrange(len(lista))
-        return lista[palabra]
+        return (3,0)
+
+def retornar_Columna2(dic):
+
+    letras_compu=[[sg.Button("",key=i,image_filename="Letras/_fondo.png",pad=retornar_pad(i,'c') ) for i in range(7)]]
+
+    letras_usuario=[[sg.Button("",key=('a',a), image_filename="Letras/_fondo.png", pad=retornar_pad(a,'u'))for a in range(7)]]
+    
+    tablero=retornar_tablero(dic['Nivel'])
+    
+    columna2=[  
+                [sg.Column(letras_compu, justification='right')],
+				[sg.Column(tablero,justification="center")],
+				[sg.Column(letras_usuario,justification="left")]]
+    return columna2
 
 def conjunto_de_letras(Dic_Letras_puntos_cantidad,estilo_col3):
     '''Funcion que retorna una estructura de las letras con sus puntos y la cantidad de letras 
@@ -115,35 +123,8 @@ def conjunto_de_letras(Dic_Letras_puntos_cantidad,estilo_col3):
                 [sg.Column(texto),sg.Column(pun),sg.Column(can)]]
     return conjunto
 
-def retornar_pad(num,tipo):
-    if (num==0 and tipo=="u") or (num==6 and tipo=="c") :
-        return (0,0)
-    else:
-        return (3,0)
 
-def retornar_Columna2(dic):
-
-    if sys.platform=='linux':
-        T=(3,2)
-    else:
-        T=(5,2)
-    letras_compu=[[sg.Button("",key=i ,size=T,pad=retornar_pad(i,'c') if (sys.platform=="linux") else None) for i in range(7)]]
-
-    letras_usuario=[[sg.Button("",key=('a',a), size=T ,pad=retornar_pad(a,'u') if (sys.platform=="linux") else None)for a in range(7)]]
-    
-    tablero=retornar_tablero(dic['Nivel'])
-    
-    columna2=[  
-                [sg.Column(letras_compu, justification='right')],
-				[sg.Column(tablero,justification="center")],
-				[sg.Column(letras_usuario,justification="left")]]
-    return columna2
-    
-def retornar_Columna3(dic, Dic_Letras_puntos_cantidad, tipo_de_palabra):
-    
-    estilo_col3={"font":('Calibri',12), 'relief':sg.RELIEF_SOLID, 'size':(16,0)}
-    estilo_boton={'size':(11,0),"font":('Helvetica',12)}
-    conjunto1=conjunto_de_letras(Dic_Letras_puntos_cantidad, estilo_col3)
+def retornar_conjunto2(dic,tipo_de_palabra,estilo_col3):
     estilo_col3['size']=(33,0)
     conjunto2=[
         [sg.Text("NIVEL: "+dic["Nivel"],**estilo_col3)],
@@ -151,6 +132,11 @@ def retornar_Columna3(dic, Dic_Letras_puntos_cantidad, tipo_de_palabra):
         [sg.Text("Tiempo de Partida: "+str(dic["Tiempo"])[0]+" Min",**estilo_col3)],
         [sg.T('Tiempo de Jugada: '+str(dic['Tiempo2'])+' Seg',**estilo_col3)]
     ]
+    return conjunto2
+    
+    
+def retornar_conjunto3(estilo_col3):
+    estilo_boton={'size':(11,0),"font":('Helvetica',12)}
     estilo_col3['size']=(16,0)
     conjunto3=[
         [sg.Text("Casillas Especiales",**estilo_col3)],
@@ -159,6 +145,14 @@ def retornar_Columna3(dic, Dic_Letras_puntos_cantidad, tipo_de_palabra):
         [sg.Button("",size=(2,1),button_color=("red","PaleVioletRed4")),sg.Text("Descuento 3",**estilo_boton),sg.Button("",size=(2,1),button_color=("red","MediumSlateBlue")),sg.Text("Palabra x2",**estilo_boton)],
         [sg.Button("",size=(2,1),button_color=("red","#97755c")),sg.Text("Comienzo",**estilo_boton),sg.Button("",size=(2,1),button_color=("red","SlateBlue4")),sg.Text("Palabra x3",**estilo_boton)],
     ]
+    return conjunto3
+
+def retornar_Columna3(dic, Dic_Letras_puntos_cantidad, tipo_de_palabra):
+    
+    estilo_col3={"font":('Calibri',12), 'relief':sg.RELIEF_SOLID, 'size':(16,0)}
+    conjunto1=conjunto_de_letras(Dic_Letras_puntos_cantidad, estilo_col3)
+    conjunto2=retornar_conjunto2(dic,tipo_de_palabra,estilo_col3)
+    conjunto3=retornar_conjunto3(estilo_col3)
     columna3=[  [sg.Text("",size=(1,3))],[sg.Frame('',background_color="#ffffff",
                 layout=[[sg.Text('CONSIDERACIONES',size=(350,1),justification="center",font=("Ravie",20),pad=(0,0))],
                 [sg.Column(conjunto1, pad=(0,1),size=(350,240)if (sys.platform=="win32")else (400,240))],
@@ -186,29 +180,21 @@ def tablero_de_juego(dic, estructura):
     else:
         layout= [[sg.Column(columna1),sg.Column(columna2),sg.Column(columna3)]]
     
-    estilo= {"return_keyboard_events":True,"margins":(0,0),"location":(0,0)}
+    estilo= {"return_keyboard_events":True}
     if sys.platform=='linux':
         estilo['resizable']=True
     window=sg.Window('ScrabbleAR', layout,**estilo).Finalize()
     window.maximize()
     window.read(timeout=10)
     if estructura!=None:
-        JuegoTablero.Actualizar_lista_jugadas(window,estructura["lista_jugadas"])
-        Tablero_actualizado(window,estructura["tablero_aux"],JuegoTablero.asociar_estructura())
-        contador_partida=estructura["contador_partida"]
-        contador_jugada=estructura["contador_jugada"]
-        window.FindElement("Tiempo Partida").Update("Tiempo Partida: "+'{:02d}:{:02d}'.format((contador_partida // 100) // 60, (contador_partida// 100) % 60))
-        window.FindElement("Tiempo Jugada").Update("Tiempo Jugada: "+'{:02d}:{:02d}'.format((contador_jugada // 100) // 60, (contador_jugada// 100) % 60))
-        window.FindElement('Puntaje Jugador').Update('Tu Puntaje: '+str(estructura['puntos_total_jugador']))
-        window.FindElement("Puntaje Computadora").Update("Puntaje Computadora: "+str(estructura['puntos_total_computadora']),font=("Helvetica",15))
+        actualizar_ventana(estructura,window)
     while True:
         event,values=window.read()
         if event=="Iniciar":
+            JuegoTablero.iniciar_juego(window,Dic_Letras_puntos_cantidad,dic, tipo_de_palabra, tiempo_maximo,estructura)
             break
-        if event in (None,'Terminar'):
+        if event=="Terminar":
             break
-    if not event in (None,"Terminar"):
-        JuegoTablero.iniciar_juego(window,Dic_Letras_puntos_cantidad,dic, tipo_de_palabra, tiempo_maximo,estructura)
-    elif event==None:
-        exit()
+        elif event==None:
+            exit()
     window.close()

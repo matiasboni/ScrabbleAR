@@ -20,7 +20,7 @@ def Actualizar_diccionario(diccionario, values,Claves,window):
 		for i in range(2):
 			diccionario[key2[i]]=[]
 			for j in Claves[key[i]]:
-				diccionario[key2[i]].append(window.FindElement(j).GetText())
+				diccionario[key2[i]].append(int(window.FindElement(j).GetText()))
 				
 def Actualizar_Configuracion(diccionario):
     '''Función que retorna y actualiza los valores por defecto de la pantalla configuración'''
@@ -60,10 +60,7 @@ def conjunto_letras_confi(defaultP,defaultC):
 	return [[sg.Column(letras),sg.VerticalSeparator(),sg.Column(pun,key='puntos_letras'),sg.VerticalSeparator(),sg.Column(can)]]
     
 def Retornar_nivel(lista):
-	if sys.platform!='linux':
-		dato={'size':(12,1),'font':('Calibri',20), 'enable_events':True}
-	else:
-		dato={'size':(12,1),'font':('Calibri',20), 'enable_events':True}
+	dato={'size':(12,1),'font':('Calibri',20), 'enable_events':True}
 	nivel=[ [sg.T('NIVEL',pad=(6,5),relief=sg.RELIEF_SOLID,justification='center',background_color="LightBlue",text_color='#0F0F4C',font=('Calibri',23),size=(13,1))],
 			[sg.Radio('Difícil',1,default=lista[0],key='Dificil',**dato)],
 			[sg.Radio('Medio',1,default=lista[1],key='Medio',**dato)],
@@ -71,12 +68,12 @@ def Retornar_nivel(lista):
 	return nivel
     
 def retornar_tiempo(dic):
+	estilo2={'pad':(6,5),'size':(15,1),'font':('Calibri',23)}
 	if sys.platform!="linux":
 		estilo={'size':(27,1),'font':('calibre',13)}
-		estilo2={'pad':(6,5),'size':(15,1),'font':('Calibri',23)}
 	else:
 		estilo={'size':(30,1),'font':('calibre',11)}
-		estilo2={'pad':(6,5),'size':(14,1),'font':('Calibri',23)}
+		estilo2['size']=(14,1)
 	tiempo=[[sg.T('TIEMPO',justification='center',background_color="LightBlue",text_color='#0F0F4C',**estilo2)],
 			[sg.T('Tiempo de Partida',**estilo)],
 			[sg.Slider(default_value=dic['Tiempo'],key='time', orientation='h')],
@@ -114,10 +111,7 @@ def Configuracion_de_juego(diccionario):
 	nivel=Retornar_nivel(lista)
     
 	tiempo=retornar_tiempo(diccionario)
-	if sys.platform!='linux':
-		estilo={'size':(32,1) , 'justification':'center', 'font':('Calibri', 24), 'relief':sg.RELIEF_RIDGE}
-	else:
-		estilo={'size':(30,1) , 'justification':'center', 'font':('Calibri', 24), 'relief':sg.RELIEF_RIDGE}
+	estilo={'size':(32,1) if (sys.platform!='linux') else (32,1), 'justification':'center', 'font':('Calibri', 24), 'relief':sg.RELIEF_RIDGE}
 	Configuracion=[ [sg.T('CONFIGURACIÓN',**estilo, background_color="LightBlue",text_color='#0F0F4C')],
 					[sg.T('')],
 					[sg.Frame('',layout=[[sg.Column(nivel),sg.VerticalSeparator(), sg.Column(tiempo)]],pad=(3,0))],
@@ -142,7 +136,6 @@ def Configuracion_de_juego(diccionario):
 		if event in Claves['P2']:
 			Actualizar_texto(window,'incrementar',event,'P2','P1',Claves)
 		if event in Claves['C0']:
-			pos=Claves['C0'].index(event)
 			Actualizar_texto(window,'descontar',event,'C0','C1',Claves)
 		if event in Claves['C2']:
 			Actualizar_texto(window,'incrementar',event,'C2','C1',Claves)
