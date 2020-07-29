@@ -7,13 +7,13 @@ import sys
 def Armar_estructura():
     estructura=[]
     for i in range(10):
-            estructura.append([sg.Frame("",background_color="#48B7F9",layout=[[sg.T('',key='T'+str(i), size=(70,1))]])])
+            estructura.append([sg.Frame("",background_color="#48B7F9",layout=[[sg.T('',key='T'+str(i), size=(75,1))]])])
     return estructura
 
 def Armar_string(datos):
     String=[]
     for clave, valor in datos.items():
-        frase='Nombre: {}, Puntos: {}, Tiempo: {}, Fecha: {},Hora: {}'.format(clave, valor['Puntaje'], valor['Tiempo'],valor["Fecha"],valor["Hora"])
+        frase='Nombre: {}, Puntos: {}, Tiempo: {}, Fecha: {}, Hora: {}'.format(clave, valor['Puntaje'], valor['Tiempo'],valor["Fecha"],valor["Hora"])
         String.append(frase)
     return String
 
@@ -39,7 +39,7 @@ def mostrar_ranking(window,nivel, cant):
             window.FindElement('T0').Update(value=frase)
         archivo.close()
     else:
-        frase='No se guardo ningun jugador en nivel'+nivel
+        frase='No se guardo ningun jugador en nivel '+nivel
         Actualizar_texto(window,string,cant)
         window.FindElement('T0').Update(value=frase)
     return cant
@@ -59,7 +59,7 @@ def ranking_por_nivel():
     ranking=[	[sg.Text('Ranking',font=("Ravie",110),text_color="#ffffff",justification='center' )],
 				[sg.Column(botones),sg.Column(estructura)]
 				]
-    estilo={"element_justification":"center"}
+    estilo={"element_justification":"center","font":("Helvetica",15)}
     if sys.platform=="linux":
         estilo["resizable"]=True
 

@@ -12,9 +12,9 @@ def Tablero_actualizado(window,tablero_aux,valores_letras,nivel):
     for i in range(0,15):
         for j in range(0,15):
             if tablero_aux[i][j]!=0:
-                window.FindElement((i,j)).Update(image_filename=Coordenadas.asignar_color((i,j),nivel,valores_letras[tablero_aux[i][j]]))
+                window.FindElement((i,j)).Update(image_filename=Coordenadas.asignar_color((i,j),nivel,valores_letras[tablero_aux[i][j]].lower()))
 
-def actualizar_ventana(window,estructura):
+def actualizar_ventana(window,estructura,dic):
     JuegoTablero.Actualizar_lista_jugadas(window,estructura["lista_jugadas"])
     Tablero_actualizado(window,estructura["tablero_aux"],JuegoTablero.asociar_estructura(),dic["Nivel"])
     contador_partida=estructura["contador_partida"]
@@ -22,7 +22,7 @@ def actualizar_ventana(window,estructura):
     window.FindElement("Tiempo Partida").Update("Tiempo Partida: "+'{:02d}:{:02d}'.format((contador_partida // 100) // 60, (contador_partida// 100) % 60))
     window.FindElement("Tiempo Jugada").Update("Tiempo Jugada: "+'{:02d}:{:02d}'.format((contador_jugada // 100) // 60, (contador_jugada// 100) % 60))
     window.FindElement('Puntaje Jugador').Update('Tu Puntaje: '+str(estructura['puntos_total_jugador']))
-    window.FindElement("Puntaje Computadora").Update("Puntaje Computadora: "+str(estructura['puntos_total_computadora']),font=("Helvetica",15))
+    window.FindElement("Puntaje Computadora").Update("Puntaje Computadora: "+str(estructura['puntos_total_computadora']))
 
 
 def Letras_Cantidad_y_Puntos(puntos, cantidad):
@@ -80,10 +80,10 @@ def retornar_tablero(nivel):
 
 
 def retornar_pad(num,tipo):
-    if (num==0 and tipo=="u") or (num==6 and tipo=="c") :
-        return (0,0)
-    else:
-        return (3,0)
+	if (num==0 and tipo=="u") or (num==6 and tipo=="c") :
+		return (0,0)
+	else:
+		return (3,0)
 
 def retornar_Columna2(dic):
 
@@ -185,9 +185,8 @@ def tablero_de_juego(dic, estructura):
         estilo['resizable']=True
     window=sg.Window('ScrabbleAR', layout,**estilo).Finalize()
     window.maximize()
-    window.read(timeout=10)
     if estructura!=None:
-        actualizar_ventana(estructura,window)
+        actualizar_ventana(window,estructura,dic)
     while True:
         event,values=window.read()
         if event=="Iniciar":

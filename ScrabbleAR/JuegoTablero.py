@@ -21,10 +21,11 @@ def asociar_estructura():
         caracter+=1
     valores_letras[27]="LL"
     valores_letras[28]="RR"
+    valores_letras[29]="Ñ"
     return valores_letras
 
 def crear_tablero_aux():
-    '''Función que retorna la matriz de 15x15 sin letras(todos 0) '''
+    '''Función que retorna la matriz de 15x15 sin letras(todos en 0) '''
     tablero_aux=[]
     for i in range(0,15):
         lista=[]
@@ -93,10 +94,10 @@ def actualizar_tablero(posiciones,orientacion,pos,window,valores_letras,vector_c
     '''Función que actualiza el tablero con la palabra que logro armar la computadora'''
     if orientacion=="Vertical":
         for i in range(0,len(posiciones)):
-            window.FindElement((pos[0]+i,pos[1])).Update(image_filename=Coordenadas.asignar_color((pos[0]+i,pos[1]),nivel,valores_letras[vector_compu[posiciones[i]]]))
+            window.FindElement((pos[0]+i,pos[1])).Update(image_filename=Coordenadas.asignar_color((pos[0]+i,pos[1]),nivel,valores_letras[vector_compu[posiciones[i]]].lower()))
     elif orientacion=="Horizontal":
         for i in range(0,len(posiciones)):
-             window.FindElement((pos[0],pos[1]+i)).Update(image_filename=Coordenadas.asignar_color((pos[0],pos[1]+i),nivel,valores_letras[vector_compu[posiciones[i]]]))
+             window.FindElement((pos[0],pos[1]+i)).Update(image_filename=Coordenadas.asignar_color((pos[0],pos[1]+i),nivel,valores_letras[vector_compu[posiciones[i]]].lower()))
 
 def actualizar_matriz(tablero_aux,orientacion,pos,posiciones,vector_compu):
     '''Función que actualiza la matriz con la palabra que ingresó la computadora y
@@ -115,45 +116,36 @@ def actualizar_matriz(tablero_aux,orientacion,pos,posiciones,vector_compu):
             cant+=1
     return posiciones_matriz
 
-
-def vertical_compu(window,pos,tablero_aux,posiciones,vector_compu,valores_letras,nivel):
-    '''Función que retorna si se pudo colocar la palabra de manera vertical y las
-    posiciones de la matriz que se actualizaron'''
+def verificar_orientacion(pos,tablero_aux,posiciones,orientacion):
+    '''Función que verifica si la palabra se puede ubicar en el tablero'''
     ok=False
-    posiciones_matriz=[]
-    if pos[0]+len(posiciones)<=14:
+    if orientacion=="Vertical" and pos[0]+len(posiciones)<=14:
         ok=True
-        for i in range(0,len(posiciones)):
-            if tablero_aux[pos[0]+i][pos[1]]!=0:
+        i=0
+        while ok and i<len(posiciones):
+            if tablero_aux[pos[0]+i][pos[1]]==0:
                 ok=False
-        if ok:
-            actualizar_tablero(posiciones,"Vertical",pos,window,valores_letras,vector_compu,nivel)
-            posiciones_matriz=actualizar_matriz(tablero_aux,"Vertical",pos,posiciones,vector_compu)
-    return (ok,posiciones_matriz)
-
-
-def horizontal_compu(window,pos,tablero_aux,posiciones,vector_compu,valores_letras,nivel):
-    '''Función que retorna si se pudo colocar la palabra de manera horizontal y las
-    posiciones de la matriz que se actualizaron'''
-    ok=False
-    posiciones_matriz=[]
-    if pos[1]+len(posiciones)<=14:
+                i+=1
+    elif orientacion=="Horizontal" and pos[1]+len(posiciones)<=14:
         ok=True
-        for i in range(0,len(posiciones)):
+        i=0
+        while ok and i<len(posiciones):
             if tablero_aux[pos[0]][pos[1]+i]!=0:
                 ok=False
-        if ok:
-            actualizar_tablero(posiciones,"Horizontal",pos,window,valores_letras,vector_compu,nivel)
-            posiciones_matriz=actualizar_matriz(tablero_aux,"Horizontal",pos,posiciones,vector_compu)
-    return (ok,posiciones_matriz)
+            i+=1
+    return ok
 
 def actualizar_vector_compu(vector_compu,posiciones,valores_letras,letras_compu):
     '''Función que actualiza el atril de la computadora'''
+    ok=True
     letras=generar_letras(len(posiciones),letras_compu,valores_letras)
-    indice=0
-    for i in range(0,len(letras)):
-        vector_compu[posiciones[indice]]=letras[i]
-        indice+=1
+    if len(letras)!=0:
+        indice=0
+        for i in range(0,len(letras)):
+            vector_compu[posiciones[indice]]=letras[i]
+            indice+=1
+        ok=False
+    return ok
 
 def calcular_puntos(botones_del_tablero,tablero_aux,nivel,valores_letras,letras):
     '''Función que calcula y retorna los puntos logrados en una jugada'''
@@ -192,93 +184,70 @@ def borrar_pos_usadas(coordenadas,pos_0):
 
 
 def turno_compu(window,tablero_aux,valores_letras,vector_compu,iniciar_tiempo_partida,letras_compu,nivel,tipo_de_palabra,contador_partida,pos_0):
-	'''Función que ejecuta el turno de la computadora '''
-	contador_partida=int(round(time.time() * 100)) -iniciar_tiempo_partida
-	window.FindElement("Tiempo Partida").Update("Tiempo Partida: "+'{:02d}:{:02d}'.format((contador_partida // 100) // 60, (contador_partida// 100) % 60))
-	palabra,posiciones=buscar_combinacion(vector_compu,valores_letras,tipo_de_palabra)
-	total_palabra=0
-	cant=1
-	if palabra!="":
-		if tablero_aux[7][7]==0:
-			orientacion=random.choice(["Vertical","Horizontal"])
-			if orientacion=="Vertical":
-				pos=(random.randint(7-len(posiciones)+1,7),7)
-			else:
-				pos=(7,random.randint(7-len(posiciones)+1,7))
-			actualizar_tablero(posiciones,orientacion,pos,window,valores_letras,vector_compu,nivel)
-			posiciones_matriz=actualizar_matriz(tablero_aux,orientacion,pos,posiciones,vector_compu)
-		else:
-			ok=False
-			while not ok:
-				pos=random.choice(pos_0)
-				while tablero_aux[pos[0]][pos[1]]!=0 and cant!=25:
-					pos=random.choice(pos_0)
-					cant+=1
-				if cant!=25:
-					orientacion=random.choice(["Vertical","Horizontal"])
-					if orientacion=="Vertical":
-						ok,posiciones_matriz=vertical_compu(window,pos,tablero_aux,posiciones,vector_compu,valores_letras,nivel)
-						if not ok:
-							ok,posiciones_matriz=horizontal_compu(window,pos,tablero_aux,posiciones,vector_compu,valores_letras,nivel)
-					else:
-						ok,posiciones_matriz=horizontal_compu(window,pos,tablero_aux,posiciones,vector_compu,valores_letras,nivel)
-						if not ok:
-							ok,posiciones_matriz=vertical_compu(window,pos,tablero_aux,posiciones,vector_compu,valores_letras,nivel)
-				else:
-					ok=True
-		if cant!=25:
-			total_palabra=calcular_puntos(posiciones_matriz,tablero_aux,nivel,valores_letras,letras_compu)
-			actualizar_vector_compu(vector_compu,posiciones,valores_letras,letras_compu)
-			borrar_pos_usadas(posiciones_matriz,pos_0)
-	else:
-		for i in vector_compu:
-			letras_compu[valores_letras[i]]["Cantidad"]+=1
-		actualizar_vector_compu(vector_compu,[0,1,2,3,4,5,6],valores_letras,letras_compu)
-	return (contador_partida,total_palabra,palabra)
+    '''Función que ejecuta el turno de la computadora '''
+    contador_partida=int(round(time.time() * 100)) -iniciar_tiempo_partida
+    window.FindElement("Tiempo Partida").Update("Tiempo Partida: "+'{:02d}:{:02d}'.format((contador_partida // 100) // 60, (contador_partida// 100) % 60))
+    palabra,posiciones=buscar_combinacion(vector_compu,valores_letras,tipo_de_palabra)
+    total_palabra=0
+    ok=False
+    if palabra!="":
+        if tablero_aux[7][7]==0:
+            orientacion=random.choice(["Vertical","Horizontal"])
+            if orientacion=="Vertical":
+                pos=(random.randint(7-len(posiciones)+1,7),7)
+            else:
+                pos=(7,random.randint(7-len(posiciones)+1,7))
+            ok=True
+        else:
+            cant=1
+            while not ok:
+                pos=random.choice(pos_0)
+                while tablero_aux[pos[0]][pos[1]]!=0 and cant!=len(pos_0):
+                    pos=random.choice(pos_0)
+                    cant+=1
+                if cant!=len(pos_0):
+                    orientacion=random.choice(["Vertical","Horizontal"])
+                    ok=verificar_orientacion(pos,tablero_aux,posiciones,orientacion)
+                    if not ok and orientacion=="Vertical":
+                        orientacion="Horizontal"
+                        ok=verificar_orientacion(pos,tablero_aux,posiciones,orientacion)
+                    elif not ok:
+                        orientacion="Vertical"
+                        ok=verificar_orientacion(pos,tablero_aux,posiciones,orientacion)
+        if ok:
+            actualizar_tablero(posiciones,orientacion,pos,window,valores_letras,vector_compu,nivel)
+            posiciones_matriz=actualizar_matriz(tablero_aux,orientacion,pos,posiciones,vector_compu)
+            total_palabra=calcular_puntos(posiciones_matriz,tablero_aux,nivel,valores_letras,letras_compu)
+            borrar_pos_usadas(posiciones_matriz,pos_0)
+            terminar=actualizar_vector_compu(vector_compu,posiciones,valores_letras,letras_compu)
+    else:
+        terminar=False
+        for i in vector_compu:
+            letras_compu[valores_letras[i]]["Cantidad"]+=1
+        actualizar_vector_compu(vector_compu,[0,1,2,3,4,5,6],valores_letras,letras_compu)
+    return ("Terminar" if terminar else "",contador_partida,total_palabra,palabra)
+
 
 def actualizar_letras_jugador(window, letras_a_cambiar, nuevos, valores_letras, vector_jugador):
-	cant=0
-	for i in letras_a_cambiar:
-		vector_jugador[i[1]]=nuevos[cant]
-		window.FindElement(i).Update(image_filename="Letras/"+valores_letras[nuevos[cant]].lower()+"_fondo.png")
-		cant+=1 
+    '''Actualiza el atril del jugador con nuevas letras'''
+    cant=0
+    for i in letras_a_cambiar:
+        vector_jugador[i[1]]=nuevos[cant]
+        window.FindElement(i).Update(image_filename="Letras/"+valores_letras[nuevos[cant]].lower()+"_fondo.png")
+        cant+=1 
 
-def forma_de_movimiento(pos_tupla, ultimo):
-	'''Función que define si las letras se ponen en Horizontal o Vertical'''
-	if ultimo[1]>pos_tupla[1]:
-		return 'horizontal'
-	else:
-		return 'vertical'
-
-def horizontal(ultimo):
-	return [(ultimo[0],ultimo[1]+1)]
-
-def vertical(ultimo):
-	return [(ultimo[0]+1,ultimo[1])]
-
-def posPosibles(evento):
-    '''Función que retorna las posiciones válidas al insertar la primera letra'''
-    pos_posibles=[(evento[0]+1, evento[1]), (evento[0], evento[1]+1)]
-    return pos_posibles
-
-def todas_las_pos(coordenadas_palabras, movimiento, cant, posiciones_validas):
+def todas_las_pos(coordenadas_palabras, movimiento):
     '''Función que retorna las posiciones válidas para el jugador segun la orientación
     o si es la primer letra ingresada '''
-    if cant==0:
-        posiciones_validas=posPosibles(coordenadas_palabras[0])
+    if movimiento=='':
+        evento=coordenadas_palabras[0]
+        posiciones_validas=[(evento[0]+1, evento[1]), (evento[0], evento[1]+1)]
+    ultimo=coordenadas_palabras[len(coordenadas_palabras)-1]
     if movimiento=='horizontal':
-        posiciones_validas=horizontal(coordenadas_palabras[len(coordenadas_palabras)-1])
-    elif movimiento =='vertical':
-        posiciones_validas = vertical(coordenadas_palabras[len(coordenadas_palabras)-1])
+        posiciones_validas=[(ultimo[0],ultimo[1]+1)]
+    if movimiento =='vertical':
+        posiciones_validas =[(ultimo[0]+1,ultimo[1])]
     return posiciones_validas
-
-def Definir_tipo(tipo_de_palabra):
-    '''Función que define con que tipo de palabra esta jugando el jugador en el nivel Dificil 
-    para poder verificar la palabra'''
-    if tipo_de_palabra == 'Verbos':
-        return 'VB'
-    elif tipo_de_palabra == 'Adjetivos':
-        return 'JJ'
 
 def Verificar_palabra(palabra, nivel, tipo_de_palabra):
     '''Función que valida la palabra ingresada por el jugador segun el nivel y el tipo de palabra'''
@@ -289,7 +258,7 @@ def Verificar_palabra(palabra, nivel, tipo_de_palabra):
             return True
         if nivel=='Medio' and tipo in('JJ','VB'):
             return True
-        tipo_random=Definir_tipo(tipo_de_palabra)
+        tipo_random='VB' if tipo_de_palabra=='Verbos' else 'JJ'
         if nivel=='Dificil' and tipo==tipo_random:
             return True
         else:
@@ -305,14 +274,10 @@ def volver_letras_a_posicion(window,tablero_aux,coordenada_letras, letras_usadas
     for i in coordenada_letras:
         window.FindElement(i).Update(image_filename=Coordenadas.asignar_color(i,nivel,''))
         tablero_aux[i[0]][i[1]]=0
-    return tablero_aux
 	
 def ActivarDesactivarBoton(window, pos_letras, accion, event=None):
-    '''Función que  habilita o deshabilita los botones de letras del jugador'''
-    if (accion =='deshabilitar'):
-        aux={'disabled':True}
-    else:
-        aux={'disabled':False}
+    '''Función que  habilita o deshabilita los botones del atril jugador'''
+    aux={'disabled':True} if (accion=='deshabilitar') else {'disabled':False}
     for i in pos_letras:
         if i!=event:
             window.FindElement(i).Update(**aux)
@@ -320,7 +285,7 @@ def ActivarDesactivarBoton(window, pos_letras, accion, event=None):
 def Devolver_letras_a_cambiar(window, valores_letras, vector_jugador, pos_de_letras, tiempo_maximo,tiempo_jugada,iniciar_tiempo_partida,iniciar_tiempo_jugada,contador_partida,contador_jugada):
 	'''Función en la cual el jugador elije las letras que quiere cambiar de las disponibles en sus botones'''
 	letras_a_cambiar=[]
-	window.FindElement('Verificar').Update(disabled=True)
+	ActivarDesactivarBoton(window,('Verificar','Posponer'),'deshabilitar',event=None)
 	evento=None
 	while True and contador_partida<tiempo_maximo  :
 		evento, values1=window.read(timeout=10)
@@ -335,11 +300,11 @@ def Devolver_letras_a_cambiar(window, valores_letras, vector_jugador, pos_de_let
 			else:
 				letras_a_cambiar.append(evento)
 				window.FindElement(evento).Update(image_filename="Letras/_fondo.png")
-		if evento =='Aceptar' or evento=='Terminar' or contador_jugada>=tiempo_jugada or evento=='Posponer' :
+		if evento =='Aceptar' or evento=='Terminar' or contador_jugada>=tiempo_jugada :
 			break
 		if evento == None:
 			exit()
-	window.FindElement('Verificar').Update(disabled=False)
+	ActivarDesactivarBoton(window,('Verificar','Posponer'),'habilitar',event=None)
 	return (evento,letras_a_cambiar, contador_partida,contador_jugada)
 
 def selecionar_letra(window, contador_partida,contador_jugada,tiempo_maximo,tiempo_jugada,iniciar_tiempo_partida,iniciar_tiempo_jugada,tablero_aux,event,pos_validas):
@@ -366,7 +331,7 @@ def selecionar_letra(window, contador_partida,contador_jugada,tiempo_maximo,tiem
 		if contador_jugada>=tiempo_jugada:
 			evento=None
 			break
-		if evento=='Terminar':
+		if evento=='Terminar' or evento=='Posponer':
 			break
 	return (evento,contador_partida,contador_jugada)
 	
@@ -391,13 +356,13 @@ def turno_jugador(window,tablero_aux,vector_jugador, letras_jugador, valores_let
             evento,contador_partida,contador_jugada=selecionar_letra(window,contador_partida,contador_jugada,tiempo_maximo,tiempo_jugada,iniciar_tiempo_partida,iniciar_tiempo_jugada,tablero_aux,event,pos_validas)  
             if evento!=event and evento!=None and evento!='Terminar' and evento!='Posponer':
                 if len(palabra)==1:
-                    movimiento= forma_de_movimiento(coordenada_de_letras[0],evento)
+                    movimiento='horizontal' if (evento[1]>coordenada_de_letras[0][1]) else 'vertical'
                 letra=valores_letras[vector_jugador[event[1]]]
                 tablero_aux[evento[0]][evento[1]]=vector_jugador[event[1]]
                 window.FindElement(evento).Update(image_filename=Coordenadas.asignar_color(evento,nivel,letra.lower()))
                 window.FindElement(event).Update(image_filename='Letras/_fondo.png')
                 coordenada_de_letras.append(evento)
-                pos_validas=todas_las_pos(coordenada_de_letras, movimiento, len(palabra), pos_validas)
+                pos_validas=todas_las_pos(coordenada_de_letras, movimiento)
                 palabra.append(letra)
                 letras_usadas.append(event)
             if evento=='Posponer':
@@ -415,22 +380,20 @@ def turno_jugador(window,tablero_aux,vector_jugador, letras_jugador, valores_let
                     puntos_palabra=calcular_puntos(coordenada_de_letras,tablero_aux,nivel,valores_letras,letras_jugador)
                     borrar_pos_usadas(coordenada_de_letras,pos_0)
                 else:
-                    cantidad_veces_cambiado=5
+                    event='Terminar'
                 break
             else:
-                tablero_aux=volver_letras_a_posicion(window, tablero_aux, coordenada_de_letras, letras_usadas, vector_jugador, valores_letras,nivel)
+                volver_letras_a_posicion(window, tablero_aux, coordenada_de_letras, letras_usadas, vector_jugador, valores_letras,nivel)
                 pos_validas=None
                 palabra=[]
                 letras_usadas=[]
                 coordenada_de_letras=[]
                 movimiento=''
-        if event!=None and len(palabra)==1:
-            ActivarDesactivarBoton(window, ('Cambiar Fichas','Aceptar'),'deshabilitar',event=None)
-        elif event!=None and len(palabra)==0:
-            ActivarDesactivarBoton(window, ('Cambiar Fichas','Aceptar'),'habilitar', event=None )
+        if event!=None:
+            ActivarDesactivarBoton(window, ('Cambiar Fichas','Aceptar'),'habilitar' if (len(palabra)==0)else 'deshabilitar',event=None)
         if event=='Cambiar Fichas' and cantidad_veces_cambiado<3 and len(palabra)==0:
             tiempo_pausado=int(round(time.time() * 100))
-            confirmar=sg.PopupYesNo("¿Está seguro que desea cambiar fichas?Recuerde que perdera su turno y no olvide clickear aceptar una vez seleccionadas las letras a cambiar",no_titlebar=True)
+            confirmar=sg.PopupYesNo("¿Está seguro que desea cambiar fichas? Recuerde que perdera su turno y no olvide clickear aceptar una vez seleccionadas las letras a cambiar",no_titlebar=True)
             if confirmar=="Yes":
                 iniciar_tiempo_partida=iniciar_tiempo_partida+int(round(time.time() * 100))-tiempo_pausado
                 iniciar_tiempo_jugada=iniciar_tiempo_jugada+int(round(time.time()*100))-tiempo_pausado 
@@ -444,13 +407,11 @@ def turno_jugador(window,tablero_aux,vector_jugador, letras_jugador, valores_let
                     if cantidad_veces_cambiado==3:
                         window.FindElement('Cambiar Fichas').Update(disabled=True)
                     break
-                elif (evento!='Terminar' and contador_jugada>=tiempo_jugada) or evento=='Posponer':
-                    if evento=='Posponer':
+                if (evento!='Terminar' and contador_jugada>=tiempo_jugada) or evento=='Terminar':
+                    if evento=='Terminar':
                         event=evento
                     for i in letras_a_cambiar:
                         window.FindElement(i).Update(image_filename="Letras/"+valores_letras[vector_jugador[i[1]]].lower()+"_fondo.png")
-                elif evento=='Terminar':
-                    event=event
             else:
                 iniciar_tiempo_partida=iniciar_tiempo_partida+int(round(time.time() * 100))-tiempo_pausado
                 iniciar_tiempo_jugada=iniciar_tiempo_jugada+int(round(time.time()*100))-tiempo_pausado 
@@ -637,7 +598,7 @@ def iniciar_juego(window,Dic_Letras_puntos_cantidad,dic, tipo_de_palabra, tiempo
 	maximo_jugada=dic['Tiempo2']*100
 	pos_0=posiciones_en_0(tablero_aux)
 	for i in range(0,7):
-		window.FindElement(('a',i)).Update(image_filename="Letras/"+valores_letras[vector_jugador[i]]+"_fondo.png")
+		window.FindElement(('a',i)).Update(image_filename="Letras/"+valores_letras[vector_jugador[i]].lower()+"_fondo.png")
 	if estructura!=None:
 		tiempo_act=estructura["tiempo_act"]
 		iniciar_tiempo_partida=iniciar_tiempo_partida+int(round(time.time() * 100))-tiempo_act
@@ -667,7 +628,7 @@ def iniciar_juego(window,Dic_Letras_puntos_cantidad,dic, tipo_de_palabra, tiempo
 					break
 				turno=False
 		else:
-			contador_partida,total_palabra,palabra=turno_compu(window,tablero_aux,valores_letras,vector_compu,iniciar_tiempo_partida,letras_compu,dic["Nivel"],tipo_de_palabra,contador_partida,pos_0)
+			event,contador_partida,total_palabra,palabra=turno_compu(window,tablero_aux,valores_letras,vector_compu,iniciar_tiempo_partida,letras_compu,dic["Nivel"],tipo_de_palabra,contador_partida,pos_0)
 			if event!="Posponer":
 				Actualizar_lista_jugadas(window,lista_jugadas,total_palabra,palabra,"Computadora")
 				puntos_total_computadora=puntos_total_computadora+total_palabra
@@ -677,7 +638,7 @@ def iniciar_juego(window,Dic_Letras_puntos_cantidad,dic, tipo_de_palabra, tiempo
 		if sys.platform=="win32":
 			window.Disable()
 		for i in range(0,7):
-			window.FindElement(i).Update(image_filename="Letras/"+valores_letras[vector_compu[i]]+"_fondo.png")
+			window.FindElement(i).Update(image_filename="Letras/"+valores_letras[vector_compu[i]].lower()+"_fondo.png")
 		puntos_total_jugador,puntos_total_computadora=restar_puntaje(puntos_total_jugador,puntos_total_computadora,vector_jugador,vector_compu,valores_letras,Dic_Letras_puntos_cantidad)
 		mostrar_resultado_partida(puntos_total_jugador,puntos_total_computadora)
 		if puntos_total_jugador>puntos_total_computadora:
@@ -688,8 +649,6 @@ def iniciar_juego(window,Dic_Letras_puntos_cantidad,dic, tipo_de_palabra, tiempo
 	else:
 		tiempo_act_jugada=int(round(time.time()*100))
 		tiempo_act=int(round(time.time() * 100))
-		digitos=int(str(contador_partida)[-2:])
-		contador_partida=contador_partida-digitos
 		guardar_partida(puntos_total_jugador,vector_jugador,letras_jugador,cantidad_veces_cambiado,puntos_total_computadora,vector_compu,
 		letras_compu,contador_partida,iniciar_tiempo_partida,tablero_aux,tiempo_maximo,tipo_de_palabra,lista_jugadas,turno,tiempo_act,
 		contador_jugada,iniciar_tiempo_jugada,tiempo_act_jugada,dic)

@@ -70,15 +70,15 @@ def Retornar_nivel(lista):
 def retornar_tiempo(dic):
 	estilo2={'pad':(6,5),'size':(15,1),'font':('Calibri',23)}
 	if sys.platform!="linux":
-		estilo={'size':(27,1),'font':('calibre',13)}
+		estilo={'size':(25,1),'font':('calibre',13)}
 	else:
 		estilo={'size':(30,1),'font':('calibre',11)}
 		estilo2['size']=(14,1)
 	tiempo=[[sg.T('TIEMPO',justification='center',background_color="LightBlue",text_color='#0F0F4C',**estilo2)],
 			[sg.T('Tiempo de Partida',**estilo)],
 			[sg.Slider(default_value=dic['Tiempo'],key='time', orientation='h')],
-			[sg.T('Tiempo de Jugada (En seg)',**estilo)],
-			[sg.Slider(range=(1,60),default_value=dic['Tiempo2'],key='time2',orientation='h')]]
+			[sg.T('Tiempo de Jugada (En seg)',**estilo),sg.T('',size=(1,1),font=('calibri',7 if (sys.platform!='linux') else 12))],
+			[sg.Slider(range=(10,60),default_value=dic['Tiempo2'],key='time2',orientation='h')]]
 	return tiempo
 
 def Actualizar_texto(window,reaccion,event,key1,key2, Claves):
