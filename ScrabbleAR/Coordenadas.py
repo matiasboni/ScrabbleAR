@@ -62,30 +62,31 @@ def pos_letra2(nivel):
 
 
 def retornar_coordenadas(nivel):
+    '''Retorna un diccionario de las coordenadas especiales segun el nivel'''
     coordenadas={"letra2":pos_letra2(nivel),"letra3":pos_letra3(nivel),"palabra2":pos_palabra2(nivel),
     "palabra3":pos_palabra3(nivel),"descuen1":descuento1(nivel),"descuen2":descuento2(nivel),"descuen3":descuento3(nivel)}
     return coordenadas
 
 
-def asignar_color(coordenadas,nivel,letra):
-    '''Función que recibe como parámetro las coordenadas de una casilla y retorna el color
-    que le corresponde a esa casilla'''
+def asignar_imagen(coordenada,nivel,letra):
+    '''Función que recibe como parametros la coordenada de una casilla, el nivel y una letra
+    y retorna la imagen correspondiente'''
     dic=retornar_coordenadas(nivel)  
-    if coordenadas in dic["letra2"]:
+    if coordenada in dic["letra2"]:
         return "Letras/"+letra+"_Lx2.png"
-    elif coordenadas in dic["letra3"]:
+    elif coordenada in dic["letra3"]:
         return "Letras/"+letra+"_Lx3.png"
-    elif coordenadas in dic["palabra2"]:
+    elif coordenada in dic["palabra2"]:
         return "Letras/"+letra+"_Px2.png"
-    elif coordenadas in dic["palabra3"]:
+    elif coordenada in dic["palabra3"]:
         return "Letras/"+letra+"_Px3.png"
-    elif coordenadas in dic["descuen1"]:
+    elif coordenada in dic["descuen1"]:
         return "Letras/"+letra+"d1.png"
-    elif coordenadas in dic["descuen2"]:
+    elif coordenada in dic["descuen2"]:
         return "Letras/"+letra+"d2.png"
-    elif coordenadas in dic['descuen3']:
+    elif coordenada in dic['descuen3']:
         return "Letras/"+letra+"d3.png"
-    elif coordenadas==(7,7):
+    elif coordenada==(7,7):
         return "Letras/"+letra+"c.png"
     else:
         return  "Letras/"+letra+"_fondo.png"

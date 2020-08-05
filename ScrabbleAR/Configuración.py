@@ -23,7 +23,7 @@ def Actualizar_diccionario(diccionario, values,Claves,window):
 				diccionario[key2[i]].append(int(window.FindElement(j).GetText()))
 				
 def Actualizar_Configuracion(diccionario):
-    '''Función que retorna y actualiza los valores por defecto de la pantalla configuración'''
+    '''Función que retorna y actualiza las variables de la pantalla configuración'''
     if diccionario['Nivel']=='Facil':
         lista=[False,False,True]
     elif diccionario['Nivel']=='Medio':
@@ -35,6 +35,7 @@ def Actualizar_Configuracion(diccionario):
     return (puntos, cantidad,lista)    
 
 def conjunto_letras_confi(defaultP,defaultC):
+	'''Función que retorna la estructura de los conjuntos de letras con los puntos y cantidades a configurar'''
 	dato={'size':(20,1),'font':('Calibri', 15)} 
 	Estilo_tex={'font':('Calibri',20), 'background_color':"LightBlue",'text_color':'#0F0F4C','pad':(5,5)}
 	letras=[[sg.T('LETRAS',size=(15,1),justification='center',**Estilo_tex)],
@@ -60,6 +61,7 @@ def conjunto_letras_confi(defaultP,defaultC):
 	return [[sg.Column(letras),sg.VerticalSeparator(),sg.Column(pun,key='puntos_letras'),sg.VerticalSeparator(),sg.Column(can)]]
     
 def Retornar_nivel(lista):
+	'''Función que retorna la estructura de los niveles'''
 	dato={'size':(12,1),'font':('Calibri',20), 'enable_events':True}
 	nivel=[ [sg.T('NIVEL',pad=(6,5),relief=sg.RELIEF_SOLID,justification='center',background_color="LightBlue",text_color='#0F0F4C',font=('Calibri',23),size=(13,1))],
 			[sg.Radio('Difícil',1,default=lista[0],key='Dificil',**dato)],
@@ -68,6 +70,7 @@ def Retornar_nivel(lista):
 	return nivel
     
 def retornar_tiempo(dic):
+	'''Función que retorna la estructura del tiempo de jugada y tiempo de partida'''
 	estilo2={'pad':(6,5),'size':(15,1),'font':('Calibri',23)}
 	if sys.platform!="linux":
 		estilo={'size':(25,1),'font':('calibre',13)}
@@ -81,21 +84,23 @@ def retornar_tiempo(dic):
 			[sg.Slider(range=(10,60),default_value=dic['Tiempo2'],key='time2',orientation='h')]]
 	return tiempo
 
-def Actualizar_texto(window,reaccion,event,key1,key2, Claves):
+def Actualizar_texto(window,accion,event,key1,key2, Claves):
+	'''Función que actualiza el texto de un botón que contiene la estructura de los puntos y las cantidades'''
 	pos=Claves[key1].index(event)
 	clave=Claves[key2][pos]
-	if reaccion =='descontar':
+	if accion =='descontar':
 		dato=int(window.FindElement(clave).GetText())
 		if dato>=2:
 			dato-=1
 			window.FindElement(clave).Update(str(dato))
-	elif reaccion=='incrementar':
+	elif accion=='incrementar':
 		dato=int(window.FindElement(clave).GetText())
 		if dato<=10:
 			dato+=1
 			window.FindElement(clave).Update(str(dato))
 
 def generar_claves():
+	'''Función que genera las claves de los botones que contiene la estructura de los puntos y las cantidades'''
 	dic_claves={'P0':[],'P1':[],'P2':[],'C0':[],'C1':[],'C2':[]}
 	for i in range(3):
 		for j in range(7):
