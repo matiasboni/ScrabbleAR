@@ -50,8 +50,8 @@ def mostrar_ranking(window,nivel):
     '''Función que arma los strings y muestra el top 10 correspondiente al nivel recibido como parámetro'''
     string=None
     cant=0
-    if (os.path.isfile('Archivos/ranking_por_nivel.json')):
-        archivo=open('Archivos/ranking_por_nivel.json','r')
+    if (os.path.isfile('ranking_por_nivel.json')):
+        archivo=open('ranking_por_nivel.json','r')
         datos=json.load(archivo)
         if len(datos[nivel])!=0:
             string=Armar_string(datos[nivel])

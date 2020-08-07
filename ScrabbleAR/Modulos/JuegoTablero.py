@@ -556,13 +556,13 @@ def menor_tiempo(tiempo_anterior,tiempo_nuevo):
 
 def guardar_resultado(puntos_total_jugador,contador_partida,nivel,nombre,fecha):
 	'''Función que guarda el resultado del jugador en un archivo json'''
-	if os.path.isfile("Archivos/ranking_por_nivel.json"):
-		with open("Archivos/ranking_por_nivel.json","r")as archivo_ranking:
+	if os.path.isfile("ranking_por_nivel.json"):
+		with open("ranking_por_nivel.json","r")as archivo_ranking:
 			datos=json.load(archivo_ranking)
 			archivo_ranking.close()
 	else:
 		datos={"Facil":{},"Medio":{},"Dificil":{}}
-	archivo_ranking=open("Archivos/ranking_por_nivel.json","w")
+	archivo_ranking=open("ranking_por_nivel.json","w")
 	estructura={"Puntaje":puntos_total_jugador,"Tiempo":"{:02d}:{:02d}".format((contador_partida // 100) // 60, (contador_partida// 100) % 60),
 	"Fecha":fecha.strftime("%d/%m/%Y"),"Hora":fecha.strftime("%H:%M:%S")}
 	if  not nombre in datos[nivel].keys():
@@ -582,7 +582,7 @@ def guardar_partida(*args):
 	'puntos_total_computadora':args[4],'vector_compu':args[5],"contador_partida":args[6],"iniciar_tiempo_partida":args[7],
 	"tablero_aux":args[8],"Tiempo":args[9],'tipo_de_palabra':args[10],"lista_jugadas":args[11],"turno":args[12],"tiempo_act":args[13],
 	"contador_jugada":args[14],"iniciar_tiempo_jugada":args[15],"tiempo_act_jugada":args[16],'dic':args[17]}
-	archivo=open('Archivos/partida_guardada.pickle','wb')
+	archivo=open('partida_guardada.pickle','wb')
 	pickle.dump(datos_de_partida,archivo)
 	archivo.close()
 

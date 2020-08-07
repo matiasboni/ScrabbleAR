@@ -9,13 +9,13 @@ import Modulos.Configuración as Configuración
 def verificar_partida_guardada():
     '''Retorna una estructura que contiene la información de la partida guardada'''
     estructura=None
-    if os.path.isfile('Archivos/partida_guardada.pickle'):
+    if os.path.isfile('partida_guardada.pickle'):
         verificar=sg.PopupYesNo("Hay una partida guardada,¿desea retomarla?",no_titlebar=True)
         if verificar=="Yes":
-            with open('Archivos/partida_guardada.pickle',"rb")as archivo:
+            with open('partida_guardada.pickle',"rb")as archivo:
                 estructura=pickle.load(archivo)
             archivo.close()
-            os.remove('Archivos/partida_guardada.pickle')    
+            os.remove('partida_guardada.pickle')    
     return estructura
     
 def main():
