@@ -1,3 +1,22 @@
+'''
+    Copyright 2020 Denis Daibes Cruz Sanchez
+    Copyright 2020 Matias Ezequiel Bonifacio
+    
+    This file is part of ScrabbleAR.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.'''
+
+
 import PySimpleGUI as sg
 import os
 import json
@@ -31,8 +50,8 @@ def mostrar_ranking(window,nivel):
     '''Función que arma los strings y muestra el top 10 correspondiente al nivel recibido como parámetro'''
     string=None
     cant=0
-    if (os.path.isfile('ranking_por_nivel.json')):
-        archivo=open('ranking_por_nivel.json','r')
+    if (os.path.isfile('Archivos/ranking_por_nivel.json')):
+        archivo=open('Archivos/ranking_por_nivel.json','r')
         datos=json.load(archivo)
         if len(datos[nivel])!=0:
             string=Armar_string(datos[nivel])

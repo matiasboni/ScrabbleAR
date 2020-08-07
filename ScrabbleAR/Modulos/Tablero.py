@@ -1,9 +1,28 @@
+'''
+    Copyright 2020 Denis Daibes Cruz Sanchez
+    Copyright 2020 Matias Ezequiel Bonifacio
+    
+    This file is part of ScrabbleAR.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.'''
+    
+
 import PySimpleGUI as sg
 import random
 import time
 import sys
-import Coordenadas
-import JuegoTablero
+from Modulos import Coordenadas
+from Modulos import JuegoTablero
 
 
 
@@ -91,9 +110,9 @@ def retornar_pad(num,tipo):
 def retornar_Columna2(dic):
 	'''Función que retorna la columna 2 de la ventana del tablero'''
 
-	letras_compu=[[sg.Button("",key=i,image_filename="Letras/_fondo.png",pad=retornar_pad(i,'c') ) for i in range(7)]]
+	letras_compu=[[sg.Button("",key=i,image_filename="Imagenes/Letras/_fondo.png",pad=retornar_pad(i,'c') ) for i in range(7)]]
 
-	letras_usuario=[[sg.Button("",key=('a',a), image_filename="Letras/_fondo.png", pad=retornar_pad(a,'u'))for a in range(7)]]
+	letras_usuario=[[sg.Button("",key=('a',a), image_filename="Imagenes/Letras/_fondo.png", pad=retornar_pad(a,'u'))for a in range(7)]]
     
 	tablero=retornar_tablero(dic['Nivel'])
     
@@ -163,7 +182,7 @@ def retornar_Columna3(dic, Dic_Letras_puntos_cantidad, tipo_de_palabra):
 	columna3=[  [sg.Frame('',background_color="#ADD8E6",layout=[[sg.Text("TURNO: ",font=("Calibri",15),size=(21,1),key="TURNO")]])],
                 [sg.Text("",size=(1,1))],
                 [sg.Frame('',background_color="#ffffff",
-				layout=[[sg.Text('CONSIDERACIONES',size=(350,1),justification="center",font=("Ravie",19),pad=(0,0))],
+				layout=[[sg.Text('CONSIDERACIONES',size=(350,1),justification="center",font=("ravie",19),pad=(0,0))],
 				[sg.Column(conjunto1, pad=(0,1),size=(350,240)if (sys.platform=="win32")else (400,240))],
 				[sg.Column(conjunto2,pad=(0,1),size=(350,120)if (sys.platform=='win32')else (400,120))],
 				[sg.Column(conjunto3,pad=(0,1),size=(350,150)if (sys.platform=="win32") else (400,167))]])]

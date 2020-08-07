@@ -73,20 +73,20 @@ def asignar_imagen(coordenada,nivel,letra):
     y retorna la imagen correspondiente'''
     dic=retornar_coordenadas(nivel)  
     if coordenada in dic["letra2"]:
-        return "Letras/"+letra+"_Lx2.png"
+        return "Imagenes/Letras/"+letra+"_Lx2.png"
     elif coordenada in dic["letra3"]:
-        return "Letras/"+letra+"_Lx3.png"
+        return "Imagenes/Letras/"+letra+"_Lx3.png"
     elif coordenada in dic["palabra2"]:
-        return "Letras/"+letra+"_Px2.png"
+        return "Imagenes/Letras/"+letra+"_Px2.png"
     elif coordenada in dic["palabra3"]:
-        return "Letras/"+letra+"_Px3.png"
+        return "Imagenes/Letras/"+letra+"_Px3.png"
     elif coordenada in dic["descuen1"]:
-        return "Letras/"+letra+"d1.png"
+        return "Imagenes/Letras/"+letra+"d1.png"
     elif coordenada in dic["descuen2"]:
-        return "Letras/"+letra+"d2.png"
+        return "Imagenes/Letras/"+letra+"d2.png"
     elif coordenada in dic['descuen3']:
-        return "Letras/"+letra+"d3.png"
+        return "Imagenes/Letras/"+letra+"d3.png"
     elif coordenada==(7,7):
-        return "Letras/"+letra+"c.png"
+        return "Imagenes/Letras/"+letra+"c.png"
     else:
-        return  "Letras/"+letra+"_fondo.png"
+        return  "Imagenes/Letras/"+letra+"_fondo.png"

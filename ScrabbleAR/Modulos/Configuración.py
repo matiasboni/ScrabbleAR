@@ -1,3 +1,22 @@
+'''
+    Copyright 2020 Denis Daibes Cruz Sanchez
+    Copyright 2020 Matias Ezequiel Bonifacio
+    
+    This file is part of ScrabbleAR.
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.'''
+
+
 import PySimpleGUI as sg
 import sys
 
@@ -71,7 +90,7 @@ def Retornar_nivel(lista):
     
 def retornar_tiempo(dic):
 	'''Función que retorna la estructura del tiempo de jugada y tiempo de partida'''
-	estilo2={'pad':(6,5),'size':(15,1),'font':('Calibri',23)}
+	estilo2={'pad':(5,5),'size':(15,1),'font':('Calibri',23)}
 	if sys.platform!="linux":
 		estilo={'size':(25,1),'font':('calibre',13)}
 	else:
@@ -80,7 +99,7 @@ def retornar_tiempo(dic):
 	tiempo=[[sg.T('TIEMPO',justification='center',background_color="LightBlue",text_color='#0F0F4C',**estilo2)],
 			[sg.T('Tiempo de Partida',**estilo)],
 			[sg.Slider(default_value=dic['Tiempo'],key='time', orientation='h')],
-			[sg.T('Tiempo de Jugada (En seg)',**estilo),sg.T('',size=(1,1),font=('calibri',7 if (sys.platform!='linux') else 12))],
+			[sg.T('Tiempo de Jugada (En seg)',**estilo),sg.T('',size=(1,1),font=('calibri',7 if (sys.platform!='linux') else 1))],
 			[sg.Slider(range=(10,60),default_value=dic['Tiempo2'],key='time2',orientation='h')]]
 	return tiempo
 
@@ -116,7 +135,7 @@ def Configuracion_de_juego(diccionario):
 	nivel=Retornar_nivel(lista)
     
 	tiempo=retornar_tiempo(diccionario)
-	estilo={'size':(32,1) if (sys.platform!='linux') else (32,1), 'justification':'center', 'font':('Calibri', 24), 'relief':sg.RELIEF_RIDGE}
+	estilo={'size':(32,1) if (sys.platform!='linux') else (30,1), 'justification':'center', 'font':('Calibri', 24), 'relief':sg.RELIEF_RIDGE}
 	Configuracion=[ [sg.T('CONFIGURACIÓN',**estilo, background_color="LightBlue",text_color='#0F0F4C')],
 					[sg.T('')],
 					[sg.Frame('',layout=[[sg.Column(nivel),sg.VerticalSeparator(), sg.Column(tiempo)]],pad=(3,0))],
