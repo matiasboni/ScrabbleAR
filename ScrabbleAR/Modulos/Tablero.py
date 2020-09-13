@@ -72,10 +72,10 @@ def tipo_de_palabras(nivel):
 
 def retornar_columna1():
 	'''Función que retorna la columna 1 de la ventana del tablero'''
-	if sys.platform=="win32":
+	if sys.platform!="linux":
 		datos={1:{"font":("Calibri",15)},
 		2:{"size":(40,22)}}
-	elif sys.platform=="linux":
+	else:
 		datos={1:{"font":("Calibri",13)},
 		2:{"size":(35,25)}}
     
@@ -179,13 +179,13 @@ def retornar_Columna3(dic, Dic_Letras_puntos_cantidad, tipo_de_palabra):
 	conjunto1=conjunto_de_letras(Dic_Letras_puntos_cantidad, estilo_col3)
 	conjunto2=retornar_conjunto2(dic,tipo_de_palabra,estilo_col3)
 	conjunto3=retornar_conjunto3(estilo_col3)
-	columna3=[  [sg.Frame('',background_color="#ADD8E6",layout=[[sg.Text("TURNO: ",font=("Calibri",15),size=(21,1),key="TURNO")]])],
-                [sg.Text("",size=(1,1))],
+	columna3=[  [sg.Frame('',background_color="#ADD8E6",layout=[[sg.Text("TURNO: ",font=("Calibri",15),size=(22,1),key="TURNO")]])],
+				[sg.Frame('',background_color="#ADD8E6",layout=[[sg.Text("Puntos de la Palabra: 00",font=("Calibri",15),size=(22,1),key="puntosPalabra")]])],
                 [sg.Frame('',background_color="#ffffff",
 				layout=[[sg.Text('CONSIDERACIONES',size=(350,1),justification="center",font=("ravie",19),pad=(0,0))],
-				[sg.Column(conjunto1, pad=(0,1),size=(350,240)if (sys.platform=="win32")else (400,240))],
-				[sg.Column(conjunto2,pad=(0,1),size=(350,120)if (sys.platform=='win32')else (400,120))],
-				[sg.Column(conjunto3,pad=(0,1),size=(350,150)if (sys.platform=="win32") else (400,167))]])]
+				[sg.Column(conjunto1, pad=(0,1),size=(350,240)if (sys.platform!="linux")else (400,240))],
+				[sg.Column(conjunto2,pad=(0,1),size=(350,120)if (sys.platform!='linux')else (400,120))],
+				[sg.Column(conjunto3,pad=(0,1),size=(350,150)if (sys.platform!="linux") else (400,167))]])]
 			]
 	return columna3
 
@@ -219,6 +219,7 @@ def tablero_de_juego(dic, estructura):
     while True:
         event,values=window.read()
         if event=="Iniciar":
+            window.FindElement("Iniciar").Update(disabled=True)
             JuegoTablero.iniciar_juego(window,Dic_Letras_puntos_cantidad,dic, tipo_de_palabra, tiempo_maximo,estructura)
             break
         if event=="Terminar":

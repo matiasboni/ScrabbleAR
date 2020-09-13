@@ -21,3 +21,5 @@ from Modulos import Menu
 
 if __name__=='__main__':
     Menu.main()
+
+#desactivar botones de juego

@@ -71,7 +71,9 @@ def retornar_coordenadas(nivel):
 def asignar_imagen(coordenada,nivel,letra):
     '''Función que recibe como parametros la coordenada de una casilla, el nivel y una letra
     y retorna la imagen correspondiente'''
-    dic=retornar_coordenadas(nivel)  
+    dic=retornar_coordenadas(nivel)
+    if letra=="ñ":
+        letra="nn" 
     if coordenada in dic["letra2"]:
         return "Imagenes/Letras/"+letra+"_Lx2.png"
     elif coordenada in dic["letra3"]:
