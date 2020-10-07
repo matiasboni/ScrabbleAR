@@ -19,7 +19,6 @@
 
 import PySimpleGUI as sg
 import random
-import time
 import sys
 from Modulos import Coordenadas
 from Modulos import JuegoTablero

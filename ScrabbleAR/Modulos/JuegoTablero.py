@@ -430,7 +430,7 @@ def turno_jugador(window,tablero_aux,vector_jugador, letras_jugador, valores_let
 				pos_validas=todas_las_pos(coordenada_de_letras, movimiento)
 				palabra.append(letra)
 				letras_usadas.append(event)
-				puntos_palabra=puntos_palabra+calcular_puntos(coordenada_de_letras,tablero_aux,nivel,valores_letras,letras_jugador)
+				puntos_palabra=calcular_puntos(coordenada_de_letras,tablero_aux,nivel,valores_letras,letras_jugador)
 				window.FindElement('puntosPalabra').Update('Puntos de la Palabra: '+str(puntos_palabra))
 			if evento=='Posponer':
 				window.FindElement(event).Update(image_filename="Imagenes/Letras/"+valores_letras[vector_jugador[event[1]]].lower()+"_fondo.png" if valores_letras[vector_jugador[event[1]]].lower() != "ñ" else "Imagenes/Letras/nn_fondo.png" )
@@ -462,7 +462,7 @@ def turno_jugador(window,tablero_aux,vector_jugador, letras_jugador, valores_let
 				movimiento=''
 				puntos_palabra=0
 			window.FindElement('puntosPalabra').Update('Puntos de la Palabra: 00')
-		if len(palabra)==0 or len(palabra)==1:
+		if (event != None) and len(palabra)==0 or len(palabra)==1:
 			ActivarDesactivarBoton(window, ('Cambiar Fichas','Aceptar'),'habilitar' if (len(palabra)==0)else 'deshabilitar',event=None)
 		if event=='Cambiar Fichas' and cantidad_veces_cambiado<3 and len(palabra)==0:
 			Cant_letras_disponibles=0
@@ -505,6 +505,7 @@ def turno_jugador(window,tablero_aux,vector_jugador, letras_jugador, valores_let
 		if contador_jugada>=tiempo_jugada or contador_partida>=tiempo_maximo or event=='Terminar':
 			if len(letras_usadas)!=0:
 				volver_letras_a_posicion(window, tablero_aux, coordenada_de_letras, letras_usadas, vector_jugador, valores_letras,nivel)
+			puntos_palabra=0
 			palabra=[]
 			break
 		if event ==None:
@@ -711,6 +712,7 @@ def iniciar_juego(window,Dic_Letras_puntos_cantidad,dic, tipo_de_palabra, tiempo
 			vector_jugador, letras_puntos_cantidad, valores_letras,dic['Nivel'],tipo_de_palabra,iniciar_tiempo_partida, tiempo_maximo, cantidad_veces_cambiado,contador_partida,maximo_jugada,iniciar_tiempo_jugada,contador_jugada,pos_0)
 			if event!="Posponer":
 				window.FindElement("Tiempo Jugada").Update("Tiempo Jugada: 00:00")
+				window.FindElement("puntosPalabra").Update("Puntos de la Palabra: 00")
 				Actualizar_lista_jugadas(window,lista_jugadas,puntos_palabra,palabra='' if (contador_jugada>=maximo_jugada) else palabra,id="Jugador")
 				puntos_total_jugador=puntos_total_jugador+puntos_palabra
 				window.FindElement('Puntaje Jugador').Update('Tu Puntaje: '+str(puntos_total_jugador))
